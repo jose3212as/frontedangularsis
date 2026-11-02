@@ -9,15 +9,15 @@ declare const window: any;
   imports: [CommonModule],
   encapsulation: ViewEncapsulation.None,
   template: `
-	<!-- START SECTION TOP  -->
+	<!-- START SECTION TOP -->
 	<section class="section-top">
 		<div class="container">
 			<div class="col-lg-10 offset-lg-1 text-center">
-				<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s" data-wow-offset="0">
+				<div class="section-top-title">
 					<h1>Finalizar Matrícula</h1>
 					<ul>
 						<li><a href="index.html">Inicio</a></li>
-						<li> / Pago</li>
+						<li> / Pago de Matrícula</li>
 					</ul>
 				</div>
 			</div>
@@ -25,97 +25,82 @@ declare const window: any;
 	</section>	
 	<!-- END SECTION TOP -->
 	
-	<!-- Start Checkout (diseño unificado ck-) -->
-	<section class="ck-page">
+	<!-- Start Checkout (Arquitectura nativa shop.css) -->
+	<section class="shop checkout section">
 		<div class="container">
+			<div class="row"> 
+				<!-- Columna Izquierda: Datos de Facturación -->
+				<div class="col-lg-8 col-12">
+					<div class="checkout-form">
+						<h2>Datos de Facturación</h2>
+						<p>Verifica o completa tus datos para emitir tu comprobante electrónico y enviarte los accesos.</p>
+						
+						<!-- Aviso solo si no ha iniciado sesión -->
+						<div id="user-status-card"></div>
 
-			<!-- Progreso de la matrícula -->
-			<ol class="ck-steps" aria-label="Progreso de la matrícula">
-				<li class="is-done"><span class="ck-step-dot"><i class="fa fa-check"></i></span><span class="ck-step-label">Carrito</span></li>
-				<li class="is-active"><span class="ck-step-dot">2</span><span class="ck-step-label">Datos y pago</span></li>
-				<li><span class="ck-step-dot">3</span><span class="ck-step-label">Confirmación</span></li>
-			</ol>
-
-			<div class="row g-4">
-				<!-- Columna principal -->
-				<div class="col-lg-7">
-
-					<!-- 1. Cuenta del alumno -->
-					<div class="ck-card">
-						<div class="ck-card-head">
-							<span class="ck-card-num">1</span>
-							<div>
-								<h3 class="ck-card-title">Tu cuenta de alumno</h3>
-								<p class="ck-card-sub">Asociamos tu matrícula, comprobante y accesos a tu cuenta.</p>
-							</div>
-						</div>
-						<div id="user-status-card" class="ck-user">
-							<!-- Generado dinámicamente por checkout.js -->
-						</div>
-					</div>
-
-					<!-- 2. Datos de facturación -->
-					<div class="ck-card">
-						<div class="ck-card-head">
-							<span class="ck-card-num">2</span>
-							<div>
-								<h3 class="ck-card-title">Datos de facturación</h3>
-								<p class="ck-card-sub">Usaremos estos datos para emitir tu comprobante y enviarte los accesos.</p>
-							</div>
-						</div>
-
-						<form class="ck-form" id="checkout-form">
-							<div class="row g-3">
-								<div class="col-md-6">
-									<label class="ck-label" for="chk-nombres">Nombres <span>*</span></label>
-									<input class="ck-input" type="text" id="chk-nombres" placeholder="Ej. Carlos" autocomplete="given-name" required>
+						<form class="form" id="checkout-form">
+							<div class="row">
+								<div class="col-lg-6 col-md-6 col-12">
+									<div class="form-group">
+										<label>Nombres<span>*</span></label>
+										<input type="text" id="chk-nombres" placeholder="Ej. Carlos" required>
+									</div>
 								</div>
-								<div class="col-md-6">
-									<label class="ck-label" for="chk-apellidos">Apellidos <span>*</span></label>
-									<input class="ck-input" type="text" id="chk-apellidos" placeholder="Ej. Alarcón Gómez" autocomplete="family-name" required>
+								<div class="col-lg-6 col-md-6 col-12">
+									<div class="form-group">
+										<label>Apellidos<span>*</span></label>
+										<input type="text" id="chk-apellidos" placeholder="Ej. Alarcón Gómez" required>
+									</div>
 								</div>
-								<div class="col-md-6">
-									<label class="ck-label" for="chk-dni">DNI / Documento <span>*</span></label>
-									<input class="ck-input" type="text" id="chk-dni" placeholder="8 dígitos" maxlength="12" inputmode="numeric" required>
+								<div class="col-lg-6 col-md-6 col-12">
+									<div class="form-group">
+										<label>DNI / Documento<span>*</span></label>
+										<input type="text" id="chk-dni" placeholder="8 dígitos" maxlength="12" required>
+									</div>
 								</div>
-								<div class="col-md-6">
-									<label class="ck-label" for="chk-whatsapp">WhatsApp <span>*</span></label>
-									<div class="ck-input-group">
-										<span class="ck-input-prefix">+51</span>
-										<input class="ck-input" type="tel" id="chk-whatsapp" placeholder="999 555 666" maxlength="9" inputmode="numeric" autocomplete="tel-national" required>
+								<div class="col-lg-6 col-md-6 col-12">
+									<div class="form-group">
+										<label>WhatsApp<span>*</span></label>
+										<input type="tel" id="chk-whatsapp" placeholder="999 555 666" maxlength="12" required>
 									</div>
 								</div>
 								<div class="col-12">
-									<label class="ck-label" for="chk-correo">Correo electrónico <span>*</span></label>
-									<input class="ck-input" type="email" id="chk-correo" placeholder="correo@ejemplo.com" autocomplete="email" required>
-									<small class="ck-hint">Aquí recibirás tu comprobante electrónico en PDF.</small>
-								</div>
-
-								<!-- Tipo de comprobante SUNAT -->
-								<div class="col-12">
-									<span class="ck-label">Tipo de comprobante <span>*</span></span>
-									<div class="ck-segment" role="radiogroup">
-										<label class="ck-segment-opt">
-											<input type="radio" name="tipoComp" id="comp-boleta" value="BOLETA" checked onchange="toggleFactura(false)">
-											<span><i class="fa fa-file-text-o"></i> Boleta de venta</span>
-										</label>
-										<label class="ck-segment-opt">
-											<input type="radio" name="tipoComp" id="comp-factura" value="FACTURA" onchange="toggleFactura(true)">
-											<span><i class="fa fa-building-o"></i> Factura (con RUC)</span>
-										</label>
+									<div class="form-group">
+										<label>Correo Electrónico<span>*</span></label>
+										<input type="email" id="chk-correo" placeholder="correo@ejemplo.com" required>
 									</div>
 								</div>
 
+								<!-- Tipo de Comprobante -->
+								<div class="col-12">
+									<div class="form-group">
+										<label>Tipo de Comprobante<span>*</span></label>
+										<div class="d-flex gap-4 mt-2 p-3" style="background: #F6F7FB;">
+											<label class="mb-0" style="cursor: pointer;">
+												<input type="radio" name="tipoComp" id="comp-boleta" value="BOLETA" checked onchange="toggleFactura(false)" style="width: auto; height: auto; margin-right: 6px;">
+												Boleta de Venta
+											</label>
+											<label class="mb-0" style="cursor: pointer;">
+												<input type="radio" name="tipoComp" id="comp-factura" value="FACTURA" onchange="toggleFactura(true)" style="width: auto; height: auto; margin-right: 6px;">
+												Factura (con RUC)
+											</label>
+										</div>
+									</div>
+								</div>
+
+								<!-- Campos adicionales solo para Factura -->
 								<div id="box-factura" class="col-12 d-none">
-									<div class="ck-subbox">
-										<div class="row g-3">
-											<div class="col-md-5">
-												<label class="ck-label" for="chk-ruc">RUC <span>*</span></label>
-												<input class="ck-input" type="text" id="chk-ruc" placeholder="20601234567" maxlength="11" inputmode="numeric">
+									<div class="row">
+										<div class="col-lg-6 col-md-6 col-12">
+											<div class="form-group">
+												<label>RUC<span>*</span></label>
+												<input type="text" id="chk-ruc" placeholder="20601234567" maxlength="11">
 											</div>
-											<div class="col-md-7">
-												<label class="ck-label" for="chk-razon">Razón social <span>*</span></label>
-												<input class="ck-input" type="text" id="chk-razon" placeholder="Ej. Empresa Soluciones S.A.C.">
+										</div>
+										<div class="col-lg-6 col-md-6 col-12">
+											<div class="form-group">
+												<label>Razón Social<span>*</span></label>
+												<input type="text" id="chk-razon" placeholder="Nombre de la empresa">
 											</div>
 										</div>
 									</div>
@@ -123,178 +108,66 @@ declare const window: any;
 							</div>
 						</form>
 					</div>
+				</div>
 
-					<!-- 3. Método de pago -->
-					<div class="ck-card">
-						<div class="ck-card-head">
-							<span class="ck-card-num">3</span>
-							<div>
-								<h3 class="ck-card-title">Método de pago</h3>
-								<p class="ck-card-sub">Todas las transacciones son procesadas mediante la pasarela oficial y segura de Mercado Pago.</p>
+				<!-- Columna Derecha: Resumen y Botón de Pago (shop.css .order-details) -->
+				<div class="col-lg-4 col-12">
+					<div class="order-details">
+						<!-- Resumen de Matrícula -->
+						<div class="single-widget">
+							<h2>RESUMEN DE MATRÍCULA</h2>
+							<div class="content">
+								<ul id="order-items-list">
+									<!-- Cursos inyectados dinámicamente -->
+								</ul>
+								<ul>
+									<li>Subtotal<span id="side-subtotal">S/ 0.00</span></li>
+									<li>I.G.V. (18%)<span id="side-igv">S/ 0.00</span></li>
+									<li class="last">Total a Pagar<span id="side-total">S/ 0.00</span></li>
+								</ul>
 							</div>
 						</div>
 
-						<!-- Tarjeta Exclusiva Mercado Pago -->
-						<div class="ck-mp-box">
-							<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-								<div class="d-flex align-items-center gap-3">
-									<div class="ck-mp-logo-badge">
-										<i class="fa fa-credit-card"></i>
-									</div>
-									<div>
-										<strong style="font-size: 16px; color: #1a2d62; display: block;">Mercado Pago Checkout</strong>
-										<small style="color: #64748b;">Tarjetas de crédito o débito, saldo MP y transferencias bancarias</small>
-									</div>
+						<!-- Método de Pago -->
+						<div class="single-widget">
+							<h2>MÉTODO DE PAGO</h2>
+							<div class="content">
+								<div class="checkbox">
+									<label class="checkbox-inline checked">
+										<input name="metodoPago" type="radio" checked> Mercado Pago (Tarjetas, Yape y Plin)
+									</label>
 								</div>
-								<span class="ck-tag" style="background: #e6fdf0; color: #15803d; border: 1px solid #bbf7d0;">
-									<i class="fa fa-shield me-1"></i> Oficial &bull; 100% Seguro
-								</span>
-							</div>
-
-							<div class="ck-info mb-3">
-								<i class="fa fa-lock" style="color: #2eca7f;"></i>
-								<div>
-									<strong>Protección con cifrado SSL de 256 bits</strong>
-									<p>Al hacer clic en pagar, nos conectaremos directamente con la plataforma segura de Mercado Pago. Tus datos financieros nunca se almacenan en nuestros servidores.</p>
-								</div>
-							</div>
-
-							<div class="ck-brands">
-								<span class="ck-brand is-visa"><i class="fa fa-cc-visa"></i> VISA</span>
-								<span class="ck-brand is-mc"><i class="fa fa-cc-mastercard"></i> Mastercard</span>
-								<span class="ck-brand is-amex"><i class="fa fa-cc-amex"></i> AMEX</span>
-								<span class="ck-brand"><i class="fa fa-credit-card"></i> Diners</span>
-								<span class="ck-brand is-mp"><i class="fa fa-check-circle"></i> Débito y Saldo</span>
 							</div>
 						</div>
 
-						<!-- Asistente de Pagos Mercado Pago Sandbox -->
-						<div class="ck-mp-sandbox-panel" style="margin-top: 18px; padding: 18px 20px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px;">
-							<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
-								<span class="badge" style="background: #e0f2fe; color: #0284c7; font-size: 11.5px; padding: 5px 12px; font-weight: 700; border-radius: 999px;">
-									<i class="fa fa-shield me-1"></i> Modo de Prueba Oficial
-								</span>
-								<small style="color: #64748b; font-size: 12px;"><i class="fa fa-check-circle text-success"></i> Pago simulado para evaluación sin costo real</small>
-							</div>
-							
-							<p style="font-size: 13px; color: #334155; margin-bottom: 12px; line-height: 1.45;">
-								Para pagar dentro de la pasarela de Mercado Pago, ingresa los datos de la <strong>tarjeta de prueba autorizada (Perú)</strong>:
-							</p>
-
-							<!-- Tarjeta de Prueba Visual e Interactiva -->
-							<div class="ck-test-card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 4px 15px rgba(15,23,42,0.15);">
-								<div class="d-flex justify-content-between align-items-center mb-2">
-									<span style="font-size: 11px; letter-spacing: 1px; color: #94a3b8; text-transform: uppercase; font-weight: 700;">
-										Tarjeta de Prueba Autorizada
-									</span>
-									<span style="font-weight: 800; color: #38bdf8; font-size: 13px;"><i class="fa fa-cc-visa"></i> VISA PERÚ</span>
-								</div>
-								
-								<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-									<span id="test-card-number-val" style="font-family: 'Courier New', Courier, monospace; font-size: 17px; letter-spacing: 2.5px; font-weight: 700; color: #f8fafc;">
-										4067 4300 0000 0001
-									</span>
-									<button type="button" class="btn btn-sm" onclick="copiarTarjetaPrueba('4067430000000001')" style="background: #334155; color: #38bdf8; border: 1px solid #475569; padding: 4px 12px; font-size: 12px; border-radius: 6px; font-weight: 600;" title="Copiar número de tarjeta">
-										<i class="fa fa-clone me-1"></i> Copiar Tarjeta
+						<!-- Botón Principal de Pago -->
+						<div class="single-widget get-button">
+							<div class="content">
+								<div class="button">
+									<button type="submit" form="checkout-form" id="btn-pago" class="btn" style="cursor: pointer; border: none;">
+										Pagar con Mercado Pago
 									</button>
 								</div>
 
-								<div class="d-flex justify-content-between flex-wrap gap-2" style="font-size: 11.5px; color: #cbd5e1; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">
-									<div><span style="display:block; color:#94a3b8; font-size:10px;">EXPIRACIÓN</span><strong>11/28</strong></div>
-									<div><span style="display:block; color:#94a3b8; font-size:10px;">CVV</span><strong>123</strong></div>
-									<div><span style="display:block; color:#94a3b8; font-size:10px;">TITULAR</span><strong>APRO</strong></div>
-									<div><span style="display:block; color:#94a3b8; font-size:10px;">DNI</span><strong>12345678</strong></div>
-								</div>
-							</div>
-
-							<!-- Atajo 1 Clic para Evaluar o Probar Inmediatamente -->
-							<div class="mt-3 p-3" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
-								<div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-									<div style="flex: 1; min-width: 220px;">
-										<strong style="color: #15803d; font-size: 13.5px; display: block;">
-											<i class="fa fa-bolt"></i> ¿Deseas confirmar tu matrícula en 1 solo clic?
-										</strong>
-										<span style="font-size: 12px; color: #166534; line-height: 1.4; display: block;">
-											Confirma tu pago al instante sin salir de la página y recibe tu comprobante y accesos de inmediato.
-										</span>
+								<!-- Acciones de confirmación cuando se abre la pasarela de Mercado Pago -->
+								<div id="mp-modal-container" class="d-none mt-3 pt-3 border-top text-start">
+									<p class="small text-muted mb-2">
+										Completa tu operación en la ventana de Mercado Pago y luego confirma tu matrícula:
+									</p>
+									<div class="button mb-2">
+										<button type="button" id="btn-mp-confirmar-pago" onclick="finalizarMatriculaMp()" class="btn" style="background: #2eca7f; cursor: pointer; border: none;">
+											Ya pagué - Ver mi Comprobante
+										</button>
 									</div>
-									<button type="button" onclick="ejecutarPagoDirectoDemo()" class="btn btn-sm" style="background: #16a34a; color: #fff; font-weight: 800; border-radius: 6px; padding: 8px 16px; border: none; font-size: 13px; box-shadow: 0 2px 8px rgba(22,163,74,0.3); white-space: nowrap;">
-										<i class="fa fa-check-circle me-1"></i> Confirmar Matrícula (1 Clic)
-									</button>
+									<div class="text-center">
+										<a id="btn-mp-open-direct" href="#" target="_blank" rel="noopener noreferrer" class="small text-muted" style="text-decoration: underline;">
+											Volver a abrir ventana de Mercado Pago
+										</a>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-
-				<!-- Columna resumen (sticky) -->
-				<div class="col-lg-5">
-					<aside class="ck-summary">
-						<div class="ck-card">
-							<div class="ck-summary-head">
-								<h3 class="ck-card-title">Resumen de matrícula</h3>
-								<span class="ck-timer" title="Tiempo de reserva de tu vacante"><i class="fa fa-clock-o"></i> <span id="ck-timer-text">15:00</span></span>
-							</div>
-
-							<ul id="order-items-list" class="ck-items">
-								<!-- Cursos inyectados dinámicamente -->
-							</ul>
-
-							<dl class="ck-totals">
-								<div><dt>Subtotal</dt><dd id="side-subtotal">S/ 0.00</dd></div>
-								<div><dt>IGV (18%)</dt><dd id="side-igv">S/ 0.00</dd></div>
-								<div class="ck-total"><dt>Total a pagar</dt><dd id="side-total">S/ 0.00</dd></div>
-							</dl>
-
-							<button type="submit" form="checkout-form" id="btn-pago" class="ck-pay-btn" data-method="TARJETA">
-								<i class="fa fa-lock"></i> Pagar con Mercado Pago
-							</button>
-							<p class="ck-legal">Al pagar aceptas los <a href="javascript:void(0)">Términos del servicio</a>. Recibirás tu comprobante por correo y tus accesos por WhatsApp.</p>
-
-							<!-- Estado de Pago en Mercado Pago -->
-							<div id="mp-modal-container" class="ck-mp d-none">
-								<div class="ck-mp-head">
-									<span><i class="fa fa-shield"></i> Pasarela Mercado Pago</span>
-									<span id="mp-pref-badge" class="ck-mp-badge">Orden Generada</span>
-								</div>
-								<div class="ck-mp-body text-center py-3">
-									<div class="mb-3">
-										<div style="width: 52px; height: 52px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 12px rgba(2,132,199,0.15);">
-											<i class="fa fa-credit-card"></i>
-										</div>
-									</div>
-									<h5 style="color: #1a2d62; font-weight: 800; font-size: 15.5px; margin-bottom: 6px;">
-										Tu pasarela de pago seguro está lista
-									</h5>
-									<p style="font-size: 13px; color: #475569; margin-bottom: 14px; line-height: 1.45;">
-										Completa tu pago en la ventana segura de Mercado Pago. Si estás haciendo una prueba, puedes usar la tarjeta: <code>4067 4300 0000 0001</code>. Luego confirma para recibir tu comprobante:
-									</p>
-									
-									<a id="btn-mp-open-direct" href="#" target="_blank" rel="noopener noreferrer" class="ck-btn ck-btn-dark w-100 mb-2" style="font-size: 13.5px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-										<i class="fa fa-external-link"></i> Ir a Pagar con Mercado Pago
-									</a>
-
-									<button type="button" id="btn-mp-confirmar-pago" onclick="finalizarMatriculaMp()" class="ck-btn ck-btn-success w-100 mb-2" style="font-size: 14px;">
-										<i class="fa fa-check-circle"></i> Ya pagué · Ver mi comprobante
-									</button>
-
-									<button type="button" onclick="ejecutarPagoDirectoDemo()" class="ck-btn w-100 mb-2" style="font-size: 12.5px; background: #f0fdf4; color: #15803d; border: 1px solid #86efac; font-weight: 700;">
-										<i class="fa fa-bolt"></i> Confirmar Pago Rápido (1 Clic)
-									</button>
-
-									<div class="p-2 mt-2" style="background: #f8fafc; border-radius: 6px; font-size: 11.5px; color: #64748b;">
-										<span>Tarjeta de prueba: <strong>4067 4300 0000 0001</strong> &bull; Vence: <strong>11/28</strong> &bull; CVV: <strong>123</strong></span>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<ul class="ck-trust">
-							<li><i class="fa fa-lock"></i><span>Pago cifrado SSL</span></li>
-							<li><i class="fa fa-file-text-o"></i><span>Comprobante SUNAT</span></li>
-							<li><i class="fa fa-whatsapp"></i><span>Accesos por WhatsApp</span></li>
-						</ul>
-					</aside>
 				</div>
 			</div>
 		</div>

@@ -2,8 +2,7 @@ import { Component, OnInit, OnDestroy, ViewEncapsulation, inject } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
-
-declare const AuthService: any;
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-footer',
@@ -33,7 +32,7 @@ declare const AuthService: any;
 					</div>
 					<div class="col-md-3 col-12 text-md-end text-center">
 						<div class="d-inline-flex align-items-center gap-3 small">
-							<a href="javascript:void(0)" onclick="if(window.AuthService)AuthService.logout()" class="portal-footer-link text-danger"><i class="fa fa-sign-out me-1"></i> Salir</a>
+							<a href="javascript:void(0)" (click)="onLogout()" class="portal-footer-link text-danger"><i class="fa fa-sign-out me-1"></i> Salir</a>
 						</div>
 					</div>
 				</div>
@@ -62,7 +61,7 @@ declare const AuthService: any;
 					</div>
 					<div class="col-md-3 col-12 text-md-end text-center">
 						<div class="d-inline-flex align-items-center gap-3 small">
-							<a href="javascript:void(0)" onclick="if(window.AuthService)AuthService.logout()" class="portal-footer-link text-danger"><i class="fa fa-sign-out me-1"></i> Salir</a>
+							<a href="javascript:void(0)" (click)="onLogout()" class="portal-footer-link text-danger"><i class="fa fa-sign-out me-1"></i> Salir</a>
 						</div>
 					</div>
 				</div>
@@ -169,6 +168,7 @@ declare const AuthService: any;
 })
 export class FooterComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private authService = inject(AuthService);
   private navSub?: Subscription;
   isPortalDocente = false;
   isPortalAdmin = false;
@@ -180,17 +180,19 @@ export class FooterComponent implements OnInit, OnDestroy {
       .subscribe((e: any) => {
         this.checkPortalRoute(e.urlAfterRedirects || e.url);
         setTimeout(() => {
-          if (typeof AuthService !== 'undefined' && AuthService.updateNavbar) {
-            AuthService.updateNavbar();
-          }
+          this.authService.updateNavbar();
         }, 30);
       });
   }
 
+  onLogout(): void {
+    this.authService.logout('index.html');
+  }
+
   private checkPortalRoute(url: string): void {
     const clean = (url || '').toLowerCase();
-    this.isPortalDocente = clean.includes('portal-docente');
-    this.isPortalAdmin = clean.includes('portal-admin');
+    this.isPortalDocente = clean.includes('portal-docente') || clean.includes('docente');
+    this.isPortalAdmin = clean.includes('portal-admin') || clean.includes('admin');
   }
 
   ngOnDestroy(): void {

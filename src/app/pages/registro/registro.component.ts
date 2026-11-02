@@ -1,7 +1,9 @@
-import { Component, AfterViewInit, ViewEncapsulation } from '@angular/core';
+import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-declare const window: any;
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { CartService } from '../../services/cart.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-registro',
@@ -34,7 +36,7 @@ declare const window: any;
 						<h4 class="login_register_title">Crea tu cuenta de estudiante:</h4>
 						<p class="text-muted small mb-3">Completa tus datos para matricularte, recibir tu comprobante oficial y los enlaces de tus clases por WhatsApp y correo.</p>
 
-						<form id="registro-form" onsubmit="hacerRegistro(event)">
+						<form id="registro-form" (submit)="hacerRegistro($event)">
 							<div class="form-group mb-2">
 								<label>Nombres *</label>
 								<input type="text" id="reg-nom" class="form-control requiredField input-label" required placeholder="Tus nombres">
@@ -74,9 +76,98 @@ declare const window: any;
   `
 })
 export class RegistroComponent implements AfterViewInit {
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private cartService = inject(CartService);
+  private notifications = inject(NotificationService);
+
   ngAfterViewInit(): void {
-    if (typeof window !== 'undefined' && window.initRegistroPage) {
-      window.initRegistroPage();
+    this.cartService.updateBadge();
+    this.authService.updateNavbar();
+    const redirectUrl = new URLSearchParams(window.location.search).get('redirect');
+    if (redirectUrl) {
+      document.querySelectorAll('a[href="login.html"], a[href^="login.html?"]').forEach((link: any) => {
+        link.href = 'login.html?redirect=' + encodeURIComponent(redirectUrl);
+      });
+    }
+  }
+
+  async hacerRegistro(e: Event): Promise<void> {
+    e.preventDefault();
+    const btn = document.getElementById('btn-reg') as HTMLButtonElement | null;
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Creando tu cuenta...`;
+    }
+
+    const nombres = (document.getElementById('reg-nom') as HTMLInputElement)?.value?.trim() || '';
+    const apellidos = (document.getElementById('reg-ape') as HTMLInputElement)?.value?.trim() || '';
+    const dni = (document.getElementById('reg-dni') as HTMLInputElement)?.value?.trim() || '';
+    const waRaw = ((document.getElementById('reg-wa') as HTMLInputElement)?.value || '').replace(/^\+?51/, '').trim();
+    const correo = (document.getElementById('reg-mail') as HTMLInputElement)?.value?.trim() || '';
+    const password = (document.getElementById('reg-pwd') as HTMLInputElement)?.value?.trim() || '';
+
+    if (!nombres || !apellidos) {
+      this.notifications.showToast('Por favor ingresa tus nombres y apellidos completos.', 'warning');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `Crear Cuenta y Continuar`;
+      }
+      return;
+    }
+
+    if (!correo || !correo.includes('@')) {
+      this.notifications.showToast('Ingresa un correo electrónico válido para recibir tus accesos.', 'warning');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `Crear Cuenta y Continuar`;
+      }
+      return;
+    }
+
+    if (password.length < 6) {
+      this.notifications.showToast('Tu contraseña debe tener al menos 6 caracteres.', 'warning');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `Crear Cuenta y Continuar`;
+      }
+      return;
+    }
+
+    const data = {
+      nombres,
+      apellidos,
+      dni,
+      whatsapp: '+51' + waRaw,
+      correo,
+      password
+    };
+
+    try {
+      await this.authService.registro(data);
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || 'index.html';
+      const isCheckout = redirectUrl.includes('checkout');
+
+      if (btn) {
+        btn.innerHTML = `<i class="fa fa-check"></i> ¡Cuenta creada con éxito!`;
+      }
+
+      this.notifications.showToast(
+        isCheckout
+          ? '¡Cuenta creada! Te estamos llevando a la pantalla de pago para finalizar tu inscripción...'
+          : '¡Bienvenido! Tu cuenta ha sido creada exitosamente.',
+        'success'
+      );
+
+      setTimeout(() => {
+        this.router.navigateByUrl('/' + redirectUrl.replace(/^\//, ''));
+      }, 500);
+    } catch (err: any) {
+      this.notifications.showToast(err?.message || 'Error al registrar cuenta.', 'error');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `Crear Cuenta y Continuar`;
+      }
     }
   }
 }

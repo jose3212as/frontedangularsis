@@ -1,7 +1,9 @@
-import { Component, AfterViewInit, ViewEncapsulation } from '@angular/core';
+import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-declare const window: any;
+import { AuthService } from '../../services/auth.service';
+import { CartService } from '../../services/cart.service';
+import { PedidoService } from '../../services/pedido.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-confirmacion',
@@ -134,7 +136,7 @@ declare const window: any;
 						</div>
 
 						<div style="margin-top: auto;">
-							<button onclick="window.print()" class="btn-print-voucher">
+							<button type="button" (click)="imprimirComprobante()" class="btn-print-voucher">
 								<i class="fa fa-print"></i> Imprimir o Guardar en PDF
 							</button>
 						</div>
@@ -176,9 +178,196 @@ declare const window: any;
   `
 })
 export class ConfirmacionComponent implements AfterViewInit {
+  private authService = inject(AuthService);
+  private cartService = inject(CartService);
+  private pedidoService = inject(PedidoService);
+  private notifications = inject(NotificationService);
+
   ngAfterViewInit(): void {
-    if (typeof window !== 'undefined' && window.initConfirmacion) {
-      window.initConfirmacion();
+    this.initConfirmacion();
+  }
+
+  imprimirComprobante(): void {
+    if (typeof window !== 'undefined') {
+      window.print();
     }
+  }
+
+  private formatDisplayPhone(rawDigits: string): string {
+    let digits = String(rawDigits || '').replace(/\D/g, '');
+    if (digits.startsWith('51') && digits.length === 11) {
+      digits = digits.substring(2);
+    }
+    if (digits.length === 9) {
+      return `+51 ${digits.substring(0, 3)} ${digits.substring(3, 6)} ${digits.substring(6)}`;
+    }
+    return `+51 ${digits}`;
+  }
+
+  async initConfirmacion(): Promise<void> {
+    let order = this.pedidoService.getLastOrder();
+    if (!order) {
+      const history = this.pedidoService.getMisMatriculasSync();
+      if (history && history.length > 0) {
+        order = history[0];
+      } else {
+        try {
+          const remoteHistory = await this.pedidoService.getMisMatriculas();
+          if (remoteHistory && remoteHistory.length > 0) {
+            order = remoteHistory[0];
+          }
+        } catch (_) {}
+      }
+    }
+
+    const user = this.authService.getCurrentUser();
+
+    if (!order) {
+      const defaultName = user ? `${user.nombres || ''} ${user.apellidos || ''}`.trim() : 'Jose Elmer Coronado';
+      const defaultDni = (user && user.dni) || '75187638';
+      const defaultWa = (user && user.whatsapp) || '935300159';
+      const defaultCorreo = (user && user.correo) || 'carlokasike333@gmail.com';
+
+      order = {
+        codigoOrden: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
+        estado: 'PAGADO',
+        metodoPago: 'Mercado Pago Checkout',
+        curso: {
+          id: 'b0000000-0000-0000-0000-000000000001',
+          titulo: 'Desarrollo Web Integrado con Spring Boot',
+          modalidad: 'VIRTUAL',
+          horario: 'Sábados y Domingos 09:00 - 13:00',
+          precio: 150.00,
+          enlaceClase: 'https://meet.google.com/abc-defg-hij',
+          direccionClase: 'Sede Central - Av. Universitaria 1234, Lima',
+          aula: 'Laboratorio 302'
+        },
+        comprobante: {
+          tipo: 'BOLETA',
+          correlativo: 'B001-' + String(Math.floor(1000 + Math.random() * 9000)).padStart(8, '0'),
+          cliente: defaultName,
+          docIdentidad: defaultDni,
+          subtotal: '127.12',
+          igv: '22.88',
+          total: '150.00',
+          clienteCorreo: defaultCorreo,
+          clienteTelefono: defaultWa
+        }
+      };
+    }
+
+    const elCode = document.getElementById('code-order-display');
+    if (elCode) elCode.textContent = order.codigoOrden || 'ORD-894210';
+    const fechaActual = new Date().toLocaleDateString('es-PE');
+    const elDate = document.getElementById('order-date-display');
+    if (elDate) elDate.textContent = fechaActual;
+
+    const comp = order.comprobante || {
+      tipo: 'BOLETA',
+      correlativo: 'B001-00001042',
+      cliente: (user && user.nombres) ? `${user.nombres} ${user.apellidos || ''}`.trim() : 'Jose Elmer Coronado',
+      docIdentidad: (user && user.dni) || '75187638',
+      fechaEmision: fechaActual,
+      subtotal: '127.12',
+      igv: '22.88',
+      total: '150.00'
+    };
+
+    const elSunatTipo = document.getElementById('sunat-tipo-title');
+    if (elSunatTipo) elSunatTipo.textContent = (comp.tipo === 'FACTURA' || comp.tipoComprobante === 'FACTURA') ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA';
+    const elSerie = document.getElementById('sunat-serie-display');
+    const correlativoStr = comp.correlativo || (comp.serie && comp.numeroCorrelativo ? `${comp.serie}-${String(comp.numeroCorrelativo).padStart(8, '0')}` : 'B001-00001042');
+    if (elSerie) elSerie.textContent = correlativoStr;
+
+    let nombreTitular = comp.cliente || comp.razonSocial || '';
+    if (user && (!nombreTitular || nombreTitular === 'Carlos Alarcón' || nombreTitular === 'Alumno')) {
+      nombreTitular = `${user.nombres || ''} ${user.apellidos || ''}`.trim() || nombreTitular;
+    }
+    const elCliente = document.getElementById('rec-cliente');
+    if (elCliente) elCliente.textContent = nombreTitular || 'Alumno Titular';
+
+    const dniTitular = comp.docIdentidad || comp.rucCliente || (user && user.dni) || '75187638';
+    const elDoc = document.getElementById('rec-doc');
+    if (elDoc) elDoc.textContent = dniTitular;
+
+    const activeTelAlumno = (user && user.whatsapp) || (comp && comp.clienteTelefono) || (order.notificacionWhatsApp && order.notificacionWhatsApp.telefono) || '935300159';
+    const activeCorreoAlumno = (user && user.correo) || (comp && comp.clienteCorreo) || 'carlokasike333@gmail.com';
+
+    const elTel = document.getElementById('rec-telefono');
+    if (elTel) elTel.textContent = this.formatDisplayPhone(activeTelAlumno);
+    const elMail = document.getElementById('rec-correo');
+    if (elMail) elMail.textContent = activeCorreoAlumno;
+
+    const metodo = order.metodoPago || 'Mercado Pago';
+    const recMetodo = document.getElementById('rec-metodo');
+    if (recMetodo) {
+      recMetodo.textContent = metodo;
+      recMetodo.style.background = '#009ee3';
+    }
+
+    const curso = order.curso || {
+      titulo: order.cursoTitulo || 'Desarrollo Web Integrado con Spring Boot',
+      modalidad: order.modalidad || 'VIRTUAL',
+      horario: order.horario || 'Sábados y Domingos 09:00 - 13:00',
+      enlaceClase: order.enlaceClase || 'https://meet.google.com/abc-defg-hij',
+      direccionClase: order.direccionClase || 'Sede Central - Av. Universitaria 1234, Lima',
+      aula: order.aula || 'Laboratorio 302'
+    };
+
+    const elTitle = document.getElementById('rec-curso-title');
+    if (elTitle) elTitle.textContent = curso.titulo;
+
+    const elMod = document.getElementById('rec-curso-mod');
+    if (elMod) {
+      elMod.textContent = curso.modalidad;
+      elMod.className = curso.modalidad === 'VIRTUAL' ? 'badge bg-primary' : 'badge bg-success';
+    }
+    const elHorario = document.getElementById('rec-horario');
+    if (elHorario) elHorario.textContent = curso.horario;
+
+    const totalNum = Number(comp.total || comp.montoTotal || order.monto || 150);
+    const subNum = Number(comp.subtotal || +(totalNum / 1.18).toFixed(2));
+    const igvNum = Number(comp.igv || +(totalNum - subNum).toFixed(2));
+
+    const elTableDesc = document.getElementById('rec-table-desc');
+    if (elTableDesc) elTableDesc.textContent = curso.titulo;
+    const elTableMod = document.getElementById('rec-table-mod');
+    if (elTableMod) elTableMod.textContent = curso.modalidad;
+    const elTableTotal = document.getElementById('rec-table-total');
+    if (elTableTotal) elTableTotal.textContent = `S/ ${totalNum.toFixed(2)}`;
+
+    const elSubVal = document.getElementById('rec-subtotal-val');
+    if (elSubVal) elSubVal.textContent = `S/ ${subNum.toFixed(2)}`;
+    const elIgvVal = document.getElementById('rec-igv-val');
+    if (elIgvVal) elIgvVal.textContent = `S/ ${igvNum.toFixed(2)}`;
+    const elTotVal = document.getElementById('rec-total-val');
+    if (elTotVal) elTotVal.textContent = `S/ ${totalNum.toFixed(2)}`;
+
+    const boxAula = document.getElementById('box-acceso-aula');
+    const btnLink = document.getElementById('btn-link-clase') as HTMLAnchorElement | null;
+    if (curso.modalidad === 'PRESENCIAL') {
+      if (boxAula) {
+        boxAula.innerHTML = `
+          <h5>
+            <i class="fa fa-building" style="color: #2eca7f;"></i> Sede Física y Aula Asignada
+          </h5>
+          <p style="margin-bottom: 6px;">
+            <strong>Sede:</strong> ${curso.direccionClase || 'Sede Central - Av. Universitaria 1234, Lima'}
+          </p>
+          <p style="margin-bottom: 0;">
+            <strong>Aula:</strong> ${curso.aula || 'Laboratorio 302'} &bull; Acceso presencial habilitado con tu DNI.
+          </p>
+        `;
+      }
+    } else {
+      if (btnLink) btnLink.href = curso.enlaceClase || 'https://meet.google.com';
+    }
+
+    this.cartService.updateBadge();
+    this.authService.updateNavbar();
+
+    setTimeout(() => {
+      this.notifications.showToast('¡Matrícula y pago completados con éxito! Ya puedes acceder a tus clases.', 'success');
+    }, 400);
   }
 }

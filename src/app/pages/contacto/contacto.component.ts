@@ -1,9 +1,8 @@
-import { Component, AfterViewInit, ViewEncapsulation } from '@angular/core';
+import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-declare const AuthService: any;
-declare const CartService: any;
-declare const Notifications: any;
+import { AuthService } from '../../services/auth.service';
+import { CartService } from '../../services/cart.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-contacto',
@@ -114,24 +113,18 @@ declare const Notifications: any;
   `
 })
 export class ContactoComponent implements AfterViewInit {
+  private authService = inject(AuthService);
+  private cartService = inject(CartService);
+  private notifications = inject(NotificationService);
+
   ngAfterViewInit(): void {
-    if (typeof AuthService !== 'undefined' && AuthService.updateNavbar) {
-      AuthService.updateNavbar();
-    }
-    if (typeof CartService !== 'undefined' && CartService.updateBadge) {
-      CartService.updateBadge();
-    }
+    this.authService.updateNavbar();
+    this.cartService.updateBadge();
   }
 
   onContactSubmit(event: Event): void {
     event.preventDefault();
-    if (typeof Notifications !== 'undefined') {
-      if (Notifications.success) {
-        Notifications.success('¡Gracias por comunicarte con nosotros! Te responderemos a la brevedad.');
-      } else if (Notifications.showToast) {
-        Notifications.showToast('¡Gracias por comunicarte con nosotros! Te responderemos a la brevedad.', 'success');
-      }
-    }
+    this.notifications.success('¡Gracias por comunicarte con nosotros! Te responderemos a la brevedad.');
     const form = event.target as HTMLFormElement;
     if (form && form.reset) form.reset();
   }

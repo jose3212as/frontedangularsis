@@ -1,9 +1,12 @@
 import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-
-declare const window: any;
-declare const Notifications: any;
+import { ActivatedRoute, Router } from '@angular/router';
+import { APP_CONFIG, CursoModel } from '../../services/config.data';
+import { AuthService } from '../../services/auth.service';
+import { CursoService } from '../../services/curso.service';
+import { CartService } from '../../services/cart.service';
+import { PedidoService } from '../../services/pedido.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-home',
@@ -126,9 +129,9 @@ declare const Notifications: any;
 			
 			<!-- Filtros de Modalidad -->
 			<div class="text-center mb-5">
-				<button onclick="filtrarCursos('TODOS', this)" class="btn_one me-2 mb-2 filter-mod-btn" style="cursor: pointer;">Todos los Cursos</button>
-				<button onclick="filtrarCursos('VIRTUAL', this)" class="btn_two me-2 mb-2 filter-mod-btn" style="cursor: pointer;"><i class="fa fa-video-camera"></i> Virtuales en Vivo</button>
-				<button onclick="filtrarCursos('PRESENCIAL', this)" class="btn_two mb-2 filter-mod-btn" style="cursor: pointer;"><i class="fa fa-building"></i> Presenciales en Sede</button>
+				<button type="button" (click)="filtrarCursos('TODOS')" [class]="currentModalidadHome === 'TODOS' ? 'btn_one me-2 mb-2 filter-mod-btn' : 'btn_two me-2 mb-2 filter-mod-btn'" style="cursor: pointer;">Todos los Cursos</button>
+				<button type="button" (click)="filtrarCursos('VIRTUAL')" [class]="currentModalidadHome === 'VIRTUAL' ? 'btn_one me-2 mb-2 filter-mod-btn' : 'btn_two me-2 mb-2 filter-mod-btn'" style="cursor: pointer;"><i class="fa fa-video-camera"></i> Virtuales en Vivo</button>
+				<button type="button" (click)="filtrarCursos('PRESENCIAL')" [class]="currentModalidadHome === 'PRESENCIAL' ? 'btn_one mb-2 filter-mod-btn' : 'btn_two mb-2 filter-mod-btn'" style="cursor: pointer;"><i class="fa fa-building"></i> Presenciales en Sede</button>
 			</div>
 
 			<!-- Grid de Cursos Gestión de Cursos con .course-slide -->
@@ -148,11 +151,27 @@ declare const Notifications: any;
 })
 export class HomeComponent implements AfterViewInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private cursoService = inject(CursoService);
+  private cartService = inject(CartService);
+  private pedidoService = inject(PedidoService);
+  private notifications = inject(NotificationService);
+
+  allCursos: CursoModel[] = [];
+  currentModalidadHome = 'TODOS';
+  searchKeywordHome = '';
+  paidCourseIdsHome = new Set<string>();
 
   ngAfterViewInit(): void {
-    if (typeof window !== 'undefined' && window.initHome) {
-      window.initHome();
+    if (typeof window !== 'undefined') {
+      (window as any).reservar = (id: string) => this.reservar(id);
+      (window as any).filtrarCursos = (mod: string) => this.filtrarCursos(mod);
+      (window as any).buscarCursos = (q: string) => this.buscarCursos(q);
     }
+
+    this.initHome();
+
     this.route.fragment.subscribe(fragment => {
       if (fragment) {
         setTimeout(() => {
@@ -161,5 +180,207 @@ export class HomeComponent implements AfterViewInit {
         }, 100);
       }
     });
+  }
+
+  async initHome(): Promise<void> {
+    this.actualizarEstadoNavbar();
+
+    const params = new URLSearchParams(window.location.search);
+    const urlMod = (params.get('modalidad') || '').toUpperCase();
+    if (['VIRTUAL', 'PRESENCIAL', 'TODOS'].includes(urlMod)) {
+      this.currentModalidadHome = urlMod;
+    }
+    const urlQ = params.get('q') || '';
+    if (urlQ) {
+      this.searchKeywordHome = urlQ.toLowerCase().trim();
+    }
+
+    this.allCursos = this.cursoService.getCachedCursos('TODOS');
+    this.paidCourseIdsHome = this.pedidoService.getCachedPaidCourseIds();
+    this.applyFilterHome();
+
+    await Promise.allSettled([
+      this.cargarCursosPagadosAlumnoHome(),
+      (async () => {
+        try {
+          const remote = await this.cursoService.getCursos('TODOS');
+          if (remote && remote.length > 0) {
+            this.allCursos = remote;
+          }
+        } catch (e) {
+          console.warn('Usando cursos iniciales precargados:', e);
+        }
+      })()
+    ]);
+
+    this.applyFilterHome();
+    this.actualizarEstadoNavbar();
+  }
+
+  private async cargarCursosPagadosAlumnoHome(): Promise<void> {
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      this.paidCourseIdsHome.clear();
+      return;
+    }
+    try {
+      const misMatriculas = await this.pedidoService.getMisMatriculas(user.id);
+      this.paidCourseIdsHome.clear();
+      (misMatriculas || []).forEach(m => {
+        if (m.estado === 'PAGADO') {
+          const cid = (m.curso && m.curso.id) ? m.curso.id : (m.cursoId || m.id);
+          if (cid) this.paidCourseIdsHome.add(cid);
+        }
+      });
+    } catch (_) {}
+  }
+
+  private actualizarEstadoNavbar(): void {
+    this.cartService.updateBadge();
+    this.authService.updateNavbar();
+  }
+
+  buscarCursos(keyword: string): void {
+    this.searchKeywordHome = (keyword || '').toLowerCase().trim();
+    this.applyFilterHome();
+  }
+
+  filtrarCursos(mod: string): void {
+    this.currentModalidadHome = mod;
+    this.applyFilterHome();
+  }
+
+  private applyFilterHome(): void {
+    let filtered = this.cursoService.filterByModalidad(this.allCursos, this.currentModalidadHome);
+    if (this.searchKeywordHome) {
+      filtered = filtered.filter(c =>
+        (c.titulo && c.titulo.toLowerCase().includes(this.searchKeywordHome)) ||
+        (c.descripcion && c.descripcion.toLowerCase().includes(this.searchKeywordHome)) ||
+        (c.docente && c.docente.toLowerCase().includes(this.searchKeywordHome))
+      );
+    }
+    this.renderCursos(filtered);
+  }
+
+  private renderCursos(list: CursoModel[]): void {
+    const container = document.getElementById('cursos-container');
+    if (!container) return;
+
+    if (!list || list.length === 0) {
+      container.innerHTML = `
+        <div class="col-12 text-center py-5">
+          <div style="max-width: 460px; margin: 0 auto; background: #ffffff; padding: 36px 24px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.05); border: 1px solid #eef2f6;">
+            <i class="fa fa-search text-muted mb-3" style="font-size: 38px; display: block;"></i>
+            <h4 style="font-size: 18px; font-weight: 700; color: #1a2d62; margin-bottom: 8px;">No se encontraron cursos</h4>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 16px;">Intenta con otro término de búsqueda o selecciona "Todos los Cursos".</p>
+            <button onclick="window.buscarCursos(''); window.filtrarCursos('TODOS');" class="btn_one" style="padding: 6px 18px; font-size: 13px;">Ver todos los cursos</button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = list.map((c, i) => {
+      const isVirtual = c.modalidad === 'VIRTUAL';
+      const badgeHtml = isVirtual
+        ? `<span class="badge-mod-virtual"><i class="fa fa-video-camera"></i> Virtual en Vivo (Zoom / Meet)</span>`
+        : `<span class="badge-mod-presencial"><i class="fa fa-building"></i> Presencial (Sede & Aula)</span>`;
+
+      const total = c.aforoMaximo || 30;
+      const libres = c.aforoDisponible !== undefined ? c.aforoDisponible : 30;
+      let seatsClass = 'seats-live-badge';
+      let seatsText = `<i class="fa fa-table"></i> <strong>${libres} Vacantes Disponibles</strong> (de ${total})`;
+
+      if (libres <= 0) {
+        seatsClass += ' soldout';
+        seatsText = `<i class="fa fa-times-circle"></i> <strong>Aforo Completo (Agotado)</strong>`;
+      } else if (libres <= 3) {
+        seatsClass += ' urgent';
+        seatsText = `<i class="fa fa-exclamation-circle"></i> <strong>¡Últimas ${libres} Vacantes!</strong>`;
+      }
+
+      const imgUrl = c.imagen || `assets/images/all-img/c${(i % 6) + 1}.png`;
+      const docenteNombre = c.docente || (isVirtual ? 'Ing. Roberto Docente' : 'Ing. Carlos Mendoza');
+      const isPaid = this.paidCourseIdsHome.has(c.id);
+
+      let actionBtnHtml = '';
+      if (isPaid) {
+        actionBtnHtml = `
+          <a href="mis-cursos.html" class="btn_one btn-card-enrolled" style="text-decoration: none; padding: 7px 14px; font-size: 12.5px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fa fa-graduation-cap"></i> Ir a Mi Clase
+          </a>
+        `;
+      } else if (libres > 0) {
+        actionBtnHtml = `
+          <button onclick="window.reservar('${c.id}')" class="btn_two btn-card-inscribir" style="cursor: pointer;">
+            <i class="fa fa-shopping-cart"></i> Inscribirme
+          </button>
+        `;
+      } else {
+        actionBtnHtml = `<button type="button" class="btn_two btn-card-agotado" disabled style="opacity: 0.65; cursor: not-allowed; background: #f1f5f9; color: #94a3b8; border: 1.5px solid #e2e8f0; font-size: 12.5px; font-weight: 700; border-radius: 6px; padding: 8px 14px; display: inline-flex; align-items: center; gap: 6px;"><i class="fa fa-lock"></i> Agotado</button>`;
+      }
+
+      const enrolledTag = isPaid
+        ? `<div class="badge-enrolled-corner"><i class="fa fa-check-circle me-1"></i>Ya Matriculado</div>`
+        : '';
+
+      return `
+        <div class="col-lg-4 col-sm-6 col-xs-12" style="margin-bottom: 30px;">
+          <div class="course-slide" style="height: 100%; display: flex; flex-direction: column; box-shadow: 0 5px 20px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; background: #fff; position: relative;">
+            <div class="course-img" style="position: relative;">
+              <a href="curso-detalle.html?id=${c.id}">
+                <img src="${imgUrl}" alt="${c.titulo}" style="width: 100%; height: 210px; object-fit: cover;">
+              </a>
+              ${enrolledTag}
+              <div class="course-date">
+                <span class="month" style="font-weight: 700; font-size: 16px;">S/ ${Number(c.precio).toFixed(2)}</span>
+              </div>
+            </div>
+            <div class="course-content" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 25px;">
+              <div>
+                <div class="mb-2">${badgeHtml}</div>
+                <h3 style="font-size: 18px; line-height: 1.4; margin-bottom: 12px; min-height: 50px;">
+                  <a href="curso-detalle.html?id=${c.id}">${c.titulo}</a>
+                </h3>
+                <span class="d-block text-muted mb-1" style="font-size: 14px;"><i class="fa fa-calendar text-primary me-1"></i> ${c.horario}</span>
+                <span class="d-block text-muted mb-3" style="font-size: 14px;"><i class="fa fa-user-circle text-secondary me-1"></i> ${docenteNombre}</span>
+                <div class="mb-3">
+                  <span class="${seatsClass}">${seatsText}</span>
+                </div>
+              </div>
+              <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                <a class="c_btn" href="curso-detalle.html?id=${c.id}"><i class="fa fa-book me-1"></i> Ver Temario</a>
+                ${actionBtnHtml}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  reservar(cursoId: string): void {
+    let c = (this.allCursos && this.allCursos.length > 0) ? this.allCursos.find(item => item.id === cursoId) : undefined;
+    if (!c) {
+      c = APP_CONFIG.INITIAL_COURSES.find(item => item.id === cursoId);
+    }
+    if (!c) {
+      const cached: CursoModel[] = JSON.parse(localStorage.getItem('app_cursos_cache') || '[]');
+      c = cached.find(item => item.id === cursoId);
+    }
+    if (!c) {
+      this.router.navigateByUrl('/carrito.html');
+      return;
+    }
+
+    const res = this.cartService.addToCart(c);
+    this.actualizarEstadoNavbar();
+    this.cartService.bumpBadge();
+    this.applyFilterHome();
+
+    this.notifications.showToast(res.message || '¡Curso agregado a tu carrito!', 'success');
+    setTimeout(() => {
+      this.router.navigateByUrl('/carrito.html');
+    }, 500);
   }
 }

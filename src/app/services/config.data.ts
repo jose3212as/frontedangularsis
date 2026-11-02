@@ -1,8 +1,27 @@
 /**
- * CONFIG.JS - Configuración Global y Endpoints de Microservicios
+ * CONFIG.DATA.TS - Configuración Global y Semilla Inicial en Angular TypeScript
  */
-const CONFIG = {
-  // Usamos 127.0.0.1 para eliminar la latencia de resolución IPv6 (::1) de localhost en Windows
+export interface CursoModel {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  modalidad: 'VIRTUAL' | 'PRESENCIAL' | string;
+  precio: number;
+  horario: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+  aforoMaximo: number;
+  aforoDisponible: number;
+  enlaceClase?: string | null;
+  direccionClase?: string | null;
+  aula?: string | null;
+  estado?: string;
+  docenteId?: string;
+  docente: string;
+  imagen: string;
+}
+
+export const APP_CONFIG = {
   API_BASE_URL: (typeof window !== 'undefined' && window.location.port === '8080')
     ? `${window.location.origin}/api`
     : 'http://127.0.0.1:8080/api',
@@ -10,7 +29,6 @@ const CONFIG = {
   CURSOS_SERVICE_URL: 'http://127.0.0.1:8082/api/cursos',
   PEDIDOS_SERVICE_URL: 'http://127.0.0.1:8083/api/pedidos',
 
-  // Llaves de almacenamiento local (LocalStorage)
   STORAGE_KEYS: {
     TOKEN: 'jwt_token_auth',
     USER: 'current_user_profile',
@@ -19,7 +37,6 @@ const CONFIG = {
     LAST_ORDER: 'last_successful_order'
   },
 
-  // Datos semilla sincronizados al 100% con database/schema_local.sql y PostgreSQL (12 cursos)
   INITIAL_COURSES: [
     {
       id: 'b0000000-0000-0000-0000-000000000001',
@@ -225,5 +242,5 @@ const CONFIG = {
       docente: 'Ing. Roberto Docente',
       imagen: 'assets/images/all-img/c6.png'
     }
-  ]
+  ] as CursoModel[]
 };

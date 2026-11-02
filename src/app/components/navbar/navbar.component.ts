@@ -2,9 +2,8 @@ import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
-
-declare const AuthService: any;
-declare const CartService: any;
+import { AuthService } from '../../services/auth.service';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-navbar',
@@ -57,6 +56,8 @@ declare const CartService: any;
 })
 export class NavbarComponent implements AfterViewInit, OnDestroy {
   private router = inject(Router);
+  private authService = inject(AuthService);
+  private cartService = inject(CartService);
   private navSub?: Subscription;
 
   ngAfterViewInit(): void {
@@ -69,12 +70,8 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
   }
 
   syncNavbar(): void {
-    if (typeof AuthService !== 'undefined' && AuthService.updateNavbar) {
-      AuthService.updateNavbar();
-    }
-    if (typeof CartService !== 'undefined' && CartService.updateBadge) {
-      CartService.updateBadge();
-    }
+    this.authService.updateNavbar();
+    this.cartService.updateBadge();
   }
 
   ngOnDestroy(): void {

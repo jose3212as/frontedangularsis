@@ -1,19 +1,42 @@
-/**
- * CART.SERVICE.JS - Gestión del Carrito, Contador del Navbar y Temporizador de Reserva
- *
- * El contador del icono del carrito (#cart-nav-counter) se gestiona aquí de forma
- * centralizada: se actualiza solo al cargar la página, al agregar/quitar cursos
- * y también cuando el carrito cambia en otra pestaña del navegador.
- */
-const CartService = {
-  RESERVATION_MINUTES: 15,
+import { Injectable } from '@angular/core';
+import { APP_CONFIG } from './config.data';
 
-  getCart() {
+export interface CartItem {
+  id: string;
+  titulo: string;
+  precio: number;
+  modalidad: string;
+  horario: string;
+  docente: string;
+  imagen: string;
+  aforoDisponible?: number;
+  enlaceClase?: string | null;
+  direccionClase?: string | null;
+  aula?: string | null;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CartService {
+  readonly RESERVATION_MINUTES = 15;
+
+  constructor() {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', (e) => {
+        if (e.key === APP_CONFIG.STORAGE_KEYS.CART || e.key === null) {
+          this.updateBadge();
+          window.dispatchEvent(new Event('cartUpdated'));
+        }
+      });
+    }
+  }
+
+  getCart(): CartItem[] {
     try {
-      let raw = localStorage.getItem(CONFIG.STORAGE_KEYS.CART);
-      // Soporte para pruebas rápidas y previsualización con ?sample=1
+      const raw = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.CART);
       if ((!raw || raw === '[]') && typeof window !== 'undefined' && window.location.search && window.location.search.includes('sample=1')) {
-        const demo = [{
+        const demo: CartItem[] = [{
           id: 'b0000000-0000-0000-0000-000000000001',
           titulo: 'Desarrollo Web Integrado con Spring Boot',
           precio: 150.00,
@@ -27,32 +50,29 @@ const CartService = {
           u.searchParams.delete('sample');
           window.history.replaceState({}, document.title, u.pathname + (u.search ? u.search : ''));
         } catch (_) {}
-        localStorage.setItem(CONFIG.STORAGE_KEYS.CART, JSON.stringify(demo));
+        localStorage.setItem(APP_CONFIG.STORAGE_KEYS.CART, JSON.stringify(demo));
         this.startReservationTimer();
         return demo;
       }
       const cart = raw ? JSON.parse(raw) : [];
       return Array.isArray(cart) ? cart.filter(item => item && item.id) : [];
     } catch (_) {
-      localStorage.removeItem(CONFIG.STORAGE_KEYS.CART);
+      localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.CART);
       return [];
     }
-  },
+  }
 
-  saveCart(cart) {
-    localStorage.setItem(CONFIG.STORAGE_KEYS.CART, JSON.stringify(cart));
+  saveCart(cart: CartItem[]): void {
+    localStorage.setItem(APP_CONFIG.STORAGE_KEYS.CART, JSON.stringify(cart));
     if (cart.length === 0) this.clearReservationTimer();
     this.notifyChange();
-  },
+  }
 
-  isInCart(cursoId) {
+  isInCart(cursoId: string): boolean {
     return this.getCart().some(item => item.id === cursoId);
-  },
+  }
 
-  /**
-   * Agrega un curso al carrito (cada curso solo puede agregarse una vez: 1 vacante por alumno).
-   */
-  addToCart(curso) {
+  addToCart(curso: any): { success: boolean; alreadyInCart?: boolean; message: string } {
     if (!curso || !curso.id) {
       return { success: false, message: 'Curso inválido.' };
     }
@@ -69,7 +89,6 @@ const CartService = {
       return { success: false, message: 'Lo sentimos, las vacantes para este curso están agotadas.' };
     }
 
-    // Guardar los datos necesarios del curso
     cart.push({
       id: curso.id,
       titulo: curso.titulo,
@@ -88,25 +107,25 @@ const CartService = {
     this.saveCart(cart);
     this.bumpBadge();
     return { success: true, message: '¡Curso agregado a tu carrito!' };
-  },
+  }
 
-  removeFromCart(cursoId) {
+  removeFromCart(cursoId: string): void {
     if (!cursoId) return;
     const targetId = String(cursoId).trim();
     this.saveCart(this.getCart().filter(item => item && String(item.id).trim() !== targetId));
-  },
+  }
 
-  clearCart() {
-    localStorage.removeItem(CONFIG.STORAGE_KEYS.CART);
+  clearCart(): void {
+    localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.CART);
     this.clearReservationTimer();
     this.notifyChange();
-  },
+  }
 
-  getCartCount() {
+  getCartCount(): number {
     return this.getCart().length;
-  },
+  }
 
-  getTotals() {
+  getTotals(): { subtotal: string; igv: string; total: string } {
     const total = this.getCart().reduce((acc, item) => acc + (Number(item.precio) || 0), 0);
     const subtotal = total / 1.18;
     const igv = total - subtotal;
@@ -115,20 +134,19 @@ const CartService = {
       igv: igv.toFixed(2),
       total: total.toFixed(2)
     };
-  },
+  }
 
-  /* ------------------------------------------------------------------
-   * Contador del icono del carrito en el navbar (Actualización en vivo)
-   * ------------------------------------------------------------------ */
-  notifyChange() {
+  notifyChange(): void {
     this.updateBadge();
-    window.dispatchEvent(new Event('cartUpdated'));
-  },
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('cartUpdated'));
+    }
+  }
 
-  updateBadge() {
+  updateBadge(): void {
     if (typeof document === 'undefined') return;
     const count = this.getCartCount();
-    document.querySelectorAll('#cart-nav-counter, .cart-nav-counter').forEach(el => {
+    document.querySelectorAll('#cart-nav-counter, .cart-nav-counter').forEach((el: any) => {
       el.textContent = count > 9 ? '9+' : String(count);
       el.classList.toggle('is-empty', count === 0);
       el.classList.toggle('has-items', count > 0);
@@ -145,8 +163,7 @@ const CartService = {
       }
     });
 
-    // Sincronizar también enlaces de texto 'Mi Carrito' en la navegación
-    document.querySelectorAll('nav a[href="carrito.html"], #main-menu a[href="carrito.html"], #mobile_menu a[href="carrito.html"]').forEach(a => {
+    document.querySelectorAll('nav a[href="carrito.html"], #main-menu a[href="carrito.html"], #mobile_menu a[href="carrito.html"]').forEach((a: any) => {
       let badge = a.querySelector('.cart-menu-pill');
       if (count > 0) {
         if (!badge) {
@@ -164,46 +181,38 @@ const CartService = {
         badge.style.display = 'none';
       }
     });
-  },
+  }
 
-  /** Animación sutil y minimalista para confirmar cuando se agrega un curso */
-  bumpBadge() {
+  bumpBadge(): void {
     if (typeof document === 'undefined') return;
-    document.querySelectorAll('#cart-nav-counter, .cart-nav-counter, .home_lc a, .hlc').forEach(el => {
+    document.querySelectorAll('#cart-nav-counter, .cart-nav-counter, .home_lc a, .hlc').forEach((el: any) => {
       el.classList.remove('cart-bump');
-      void el.offsetWidth; // reiniciar micro-animación
+      void el.offsetWidth;
       el.classList.add('cart-bump');
       setTimeout(() => el.classList.remove('cart-bump'), 320);
     });
-  },
+  }
 
-  /**
-   * Identifica cursos ya matriculados si se requiere en UI
-   */
-  checkPaidCourses(paidIds) {
+  checkPaidCourses(paidIds: Set<string>): CartItem[] {
     if (!paidIds || paidIds.size === 0) return [];
     return this.getCart().filter(item => paidIds.has(item.id));
-  },
+  }
 
-  /* ------------------------------------------------------------------
-   * Temporizador de reserva de vacante (15 minutos)
-   * ------------------------------------------------------------------ */
-  startReservationTimer() {
-    const current = parseInt(localStorage.getItem(CONFIG.STORAGE_KEYS.RESERVATION_EXPIRY) || '0', 10);
+  startReservationTimer(): void {
+    const current = parseInt(localStorage.getItem(APP_CONFIG.STORAGE_KEYS.RESERVATION_EXPIRY) || '0', 10);
     if (!current || current <= Date.now()) {
       const expiry = Date.now() + this.RESERVATION_MINUTES * 60 * 1000;
-      localStorage.setItem(CONFIG.STORAGE_KEYS.RESERVATION_EXPIRY, expiry.toString());
+      localStorage.setItem(APP_CONFIG.STORAGE_KEYS.RESERVATION_EXPIRY, expiry.toString());
     }
-  },
+  }
 
-  /** Renueva la reserva (por ejemplo cuando el alumno vuelve a intentar pagar) */
-  renewReservation() {
+  renewReservation(): void {
     this.clearReservationTimer();
     this.startReservationTimer();
-  },
+  }
 
-  getRemainingTime() {
-    const expiry = localStorage.getItem(CONFIG.STORAGE_KEYS.RESERVATION_EXPIRY);
+  getRemainingTime(): { expired: boolean; urgent: boolean; formatted: string } | null {
+    const expiry = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.RESERVATION_EXPIRY);
     if (!expiry) return null;
     const diff = Math.max(0, parseInt(expiry, 10) - Date.now());
     const minutes = Math.floor(diff / 60000);
@@ -213,28 +222,9 @@ const CartService = {
       urgent: diff > 0 && diff <= 2 * 60 * 1000,
       formatted: `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
     };
-  },
-
-  clearReservationTimer() {
-    localStorage.removeItem(CONFIG.STORAGE_KEYS.RESERVATION_EXPIRY);
   }
-};
 
-// Mantener el contador del carrito siempre sincronizado en todas las páginas
-if (typeof window !== 'undefined') {
-  const syncBadge = () => CartService.updateBadge();
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', syncBadge);
-  } else {
-    syncBadge();
+  clearReservationTimer(): void {
+    localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.RESERVATION_EXPIRY);
   }
-  // Volver con el botón "atrás" del navegador (bfcache)
-  window.addEventListener('pageshow', syncBadge);
-  // Cambios del carrito hechos en otra pestaña
-  window.addEventListener('storage', (e) => {
-    if (e.key === CONFIG.STORAGE_KEYS.CART || e.key === null) {
-      syncBadge();
-      window.dispatchEvent(new Event('cartUpdated'));
-    }
-  });
 }

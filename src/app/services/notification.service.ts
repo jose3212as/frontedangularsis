@@ -1,16 +1,18 @@
-/**
- * NOTIFICATIONS.JS - Sistema de Notificaciones Toast de Alta Visibilidad
- */
-const Notifications = {
+import { Injectable } from '@angular/core';
+
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class NotificationService {
   /**
-   * Muestra un mensaje flotante (toast) con diseño moderno, alta visibilidad,
+   * Muestra un mensaje flotante (toast) con diseño de alta visibilidad,
    * barra de progreso y botón de cierre inmediato.
-   *
-   * @param {string} message - Texto o HTML del mensaje a mostrar
-   * @param {'success'|'error'|'warning'|'info'} type - Tipo de notificación
-   * @param {number} duration - Duración en milisegundos (por defecto 4500ms)
    */
-  showToast(message, type = 'success', duration = 4500) {
+  showToast(message: string, type: ToastType = 'success', duration = 4500): void {
+    if (typeof document === 'undefined') return;
+
     let container = document.getElementById('toast-container');
     if (!container) {
       container = document.createElement('div');
@@ -39,8 +41,7 @@ const Notifications = {
 
     container.appendChild(toast);
 
-    // Animación de la barra de progreso
-    const progressBar = toast.querySelector('.toast-progress-bar');
+    const progressBar = toast.querySelector('.toast-progress-bar') as HTMLElement | null;
     if (progressBar) {
       progressBar.style.transition = `width ${duration}ms linear`;
       requestAnimationFrame(() => {
@@ -48,7 +49,7 @@ const Notifications = {
       });
     }
 
-    let hideTimeout = null;
+    let hideTimeout: any = null;
 
     const dismiss = () => {
       if (toast.classList.contains('toast-hiding')) return;
@@ -67,11 +68,26 @@ const Notifications = {
       });
     }
 
-    // Auto-cierre con timer
     hideTimeout = setTimeout(dismiss, duration);
-  },
+  }
 
-  abrirWhatsAppWeb(numero, mensaje) {
+  success(message: string, duration = 4500): void {
+    this.showToast(message, 'success', duration);
+  }
+
+  error(message: string, duration = 4500): void {
+    this.showToast(message, 'error', duration);
+  }
+
+  warning(message: string, duration = 4500): void {
+    this.showToast(message, 'warning', duration);
+  }
+
+  info(message: string, duration = 4500): void {
+    this.showToast(message, 'info', duration);
+  }
+
+  abrirWhatsAppWeb(numero: string, mensaje: string): void {
     let cleanNum = (numero || '').toString().replace(/\D/g, '');
     if (cleanNum.length === 9) {
       cleanNum = '51' + cleanNum;
@@ -84,12 +100,12 @@ const Notifications = {
     if (!win) {
       window.location.href = url;
     }
-  },
+  }
 
-  abrirCorreo(email, asunto, mensaje) {
+  abrirCorreo(email: string, asunto: string, mensaje: string): void {
     const encodedAsunto = encodeURIComponent(asunto);
     const encodedMensaje = encodeURIComponent(mensaje);
     const mailtoUrl = `mailto:${email}?subject=${encodedAsunto}&body=${encodedMensaje}`;
     window.location.href = mailtoUrl;
   }
-};
+}

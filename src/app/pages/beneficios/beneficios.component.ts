@@ -2,9 +2,8 @@ import { Component, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation, inject 
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-
-declare const AuthService: any;
-declare const CartService: any;
+import { AuthService } from '../../services/auth.service';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-beneficios',
@@ -47,9 +46,6 @@ declare const CartService: any;
 		</div>
 	</div>
 
-	<!-- ===================================================================
-	     SECCIÓN 1: CERO SOBREVENTA DE VACANTES (.ab_one + .abmv + .course_features)
-	     =================================================================== -->
 	@if (temaActivo === 'vacantes' || temaActivo === 'todos') {
 		<section class="ab_one section-padding" id="detalle-vacantes">
 			<div class="container">									
@@ -97,7 +93,6 @@ declare const CartService: any;
 			</div>
 		</section>
 
-		<!-- PASOS DEL CONTROL DE VACANTES (.marketing_content_area + .single_feature_one) -->
 		<section class="marketing_content_area section-padding">
 			<div class="container">
 				<div class="section-title">
@@ -137,9 +132,6 @@ declare const CartService: any;
 		</section>
 	}
 
-	<!-- ===================================================================
-	     SECCIÓN 2: PAGO SEGURO CON MERCADO PAGO (.ab_one + .abmv + .course_features)
-	     =================================================================== -->
 	@if (temaActivo === 'pasarela' || temaActivo === 'todos') {
 		<section class="ab_one section-padding" id="detalle-pasarela">
 			<div class="container">									
@@ -187,7 +179,6 @@ declare const CartService: any;
 			</div>
 		</section>
 
-		<!-- PASOS DE LA PASARELA (.marketing_content_area + .single_feature_one) -->
 		<section class="marketing_content_area section-padding">
 			<div class="container">
 				<div class="section-title">
@@ -227,9 +218,6 @@ declare const CartService: any;
 		</section>
 	}
 
-	<!-- ===================================================================
-	     SECCIÓN 3: WHATSAPP & BOLETA INMEDIATOS (.ab_one + .abmv + .course_features)
-	     =================================================================== -->
 	@if (temaActivo === 'boleta' || temaActivo === 'todos') {
 		<section class="ab_one section-padding" id="detalle-boleta">
 			<div class="container">									
@@ -277,7 +265,6 @@ declare const CartService: any;
 			</div>
 		</section>
 
-		<!-- PASOS DE BOLETA Y WHATSAPP (.marketing_content_area + .single_feature_one) -->
 		<section class="marketing_content_area section-padding">
 			<div class="container">
 				<div class="section-title">
@@ -317,7 +304,6 @@ declare const CartService: any;
 		</section>
 	}
 
-	<!-- TARJETAS INFERIORES ORIGINALES (.tp_feature / .single_tp) PARA NAVEGAR ENTRE LOS 3 BENEFICIOS -->
 	<section class="tp_feature" style="padding-top: 30px;">
 	   <div class="container-fluid">			
 			<div class="row">					
@@ -355,6 +341,8 @@ declare const CartService: any;
 })
 export class BeneficiosComponent implements OnInit, AfterViewInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
+  private cartService = inject(CartService);
   private qSub?: Subscription;
 
   temaActivo: 'vacantes' | 'pasarela' | 'boleta' | 'todos' = 'todos';
@@ -373,12 +361,8 @@ export class BeneficiosComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    if (typeof AuthService !== 'undefined' && AuthService.updateNavbar) {
-      AuthService.updateNavbar();
-    }
-    if (typeof CartService !== 'undefined' && CartService.updateBadge) {
-      CartService.updateBadge();
-    }
+    this.authService.updateNavbar();
+    this.cartService.updateBadge();
   }
 
   seleccionarTema(tema: 'vacantes' | 'pasarela' | 'boleta' | 'todos'): void {

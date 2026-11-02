@@ -279,7 +279,8 @@ export class AuthService {
 
     const cartIconBox = document.querySelector('.home_lc') as HTMLElement | null;
     if (cartIconBox) {
-      cartIconBox.style.display = 'inline-flex';
+      const hideCart = !!(user && (user.rol === 'ADMIN' || user.rol === 'DOCENTE'));
+      cartIconBox.style.display = hideCart ? 'none' : 'inline-flex';
     }
 
     const container = document.getElementById('auth-buttons-nav');
@@ -295,7 +296,53 @@ export class AuthService {
           rolLabel = 'Admin';
           iconClass = 'fa fa-shield';
         } else if (user.rol === 'DOCENTE') {
-        // Perfil Docente: únicamente opciones académicas de docente (sin Inicio, sin Contacto, sin Carrito)
+          portalUrl = '/portal-docente';
+          rolLabel = 'Docente';
+          iconClass = 'fa fa-briefcase';
+        }
+
+        container.innerHTML = `
+          <a class="btn_one btn-nav-user" href="${portalUrl}" title="Ir a mi portal de trabajo">
+            <i class="${iconClass} me-1"></i> ${primerNombre} (${rolLabel})
+          </a>
+          <a class="btn_two btn-nav-logout" href="javascript:void(0)" onclick="window.__ngAuthLogout && window.__ngAuthLogout(); return false;" title="Cerrar sesión">
+            <i class="fa fa-sign-out me-1"></i> Salir
+          </a>
+        `;
+      } else {
+        container.innerHTML = `
+          <a class="btn_one" href="/login"><i class="fa fa-sign-in me-1"></i> Ingresar</a>
+          <a class="btn_two" href="/registro"><i class="fa fa-user-plus me-1"></i> Registrarse</a>
+        `;
+      }
+    }
+
+    const mainMenu = document.querySelector('#main-menu ul');
+    if (mainMenu) {
+      if (!user) {
+        // Sin iniciar sesión: Inicio SIEMPRE visible en todas las páginas públicas
+        mainMenu.innerHTML = `
+          <li><a class="nav-link" href="/"><i class="fa fa-home me-1"></i> Inicio</a></li>
+          <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
+          <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+          <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
+        `;
+      } else if (user.rol === 'ADMIN') {
+        // Perfil Admin: sin Inicio, sin Contacto, sin Carrito
+        if (isPortalAdmin) {
+          mainMenu.innerHTML = `
+            <li><a class="nav-link active" id="nav-admin-cursos" href="javascript:void(0)" onclick="if(window.switchAdminTab)window.switchAdminTab('cursos')"><i class="fa fa-book me-1"></i> Cursos</a></li>
+            <li><a class="nav-link" id="nav-admin-pedidos" href="javascript:void(0)" onclick="if(window.switchAdminTab)window.switchAdminTab('pedidos')"><i class="fa fa-shopping-cart me-1"></i> Matrículas</a></li>
+            <li><a class="nav-link" id="nav-admin-usuarios" href="javascript:void(0)" onclick="if(window.switchAdminTab)window.switchAdminTab('usuarios')"><i class="fa fa-users me-1"></i> Usuarios</a></li>
+          `;
+        } else {
+          mainMenu.innerHTML = `
+            <li><a class="nav-link" href="/portal-admin"><i class="fa fa-shield me-1"></i> Panel Admin</a></li>
+            <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Catálogo</a></li>
+          `;
+        }
+      } else if (user.rol === 'DOCENTE') {
+        // Perfil Docente: sin Inicio, sin Contacto, sin Carrito
         if (isPortalDocente) {
           mainMenu.innerHTML = `
             <li><a class="nav-link active" id="nav-docente-cursos" href="javascript:void(0)" onclick="if(window.switchDocenteTab)window.switchDocenteTab('cursos')"><i class="fa fa-book me-1"></i> Mis Cursos</a></li>

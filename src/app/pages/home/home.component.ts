@@ -57,7 +57,7 @@ declare const Notifications: any;
 					<div class="single_tp">
 						<h3>Cero Sobreventa de Vacantes</h3>
 						<p>Control automático que descuenta los cupos en el momento exacto en que compras, garantizando tu asiento en el aula física o tu cupo en Zoom.</p>
-						<a href="cursos.html" class="cta"><span>Ver Cursos Disponibles</span>
+						<a href="beneficios.html?tema=vacantes" class="cta"><span>Ver Cursos Disponibles</span>
 						  <svg width="13px" height="10px" viewBox="0 0 13 10"><path d="M1,5 L11,5"></path><polyline points="8 1 12 5 8 9"></polyline></svg>
 						</a>
 					</div>
@@ -66,7 +66,7 @@ declare const Notifications: any;
 					<div class="single_tp">
 						<h3>Pago Seguro con Mercado Pago</h3>
 						<p>Paga en línea al instante con tarjeta de crédito, débito o Yape/Plin mediante pasarela cifrada sin esperar transferencias manuales.</p>
-						<a href="carrito.html" class="cta"><span>Conocer Pasarela</span>
+						<a href="beneficios.html?tema=pasarela" class="cta"><span>Conocer Pasarela</span>
 						  <svg width="13px" height="10px" viewBox="0 0 13 10"><path d="M1,5 L11,5"></path><polyline points="8 1 12 5 8 9"></polyline></svg>
 						</a>
 					</div>
@@ -75,7 +75,7 @@ declare const Notifications: any;
 					<div class="single_tp">
 						<h3>WhatsApp & Boleta Inmediatos</h3>
 						<p>Recibe tu Boleta o Factura electrónica al instante y un mensaje automático a tu WhatsApp con los enlaces de clase o dirección del laboratorio.</p>
-						<a href="mis-cursos.html" class="cta"><span>Mis Matrículas</span>
+						<a href="beneficios.html?tema=boleta" class="cta"><span>Mis Matrículas</span>
 						  <svg width="13px" height="10px" viewBox="0 0 13 10"><path d="M1,5 L11,5"></path><polyline points="8 1 12 5 8 9"></polyline></svg>
 						</a>
 					</div>

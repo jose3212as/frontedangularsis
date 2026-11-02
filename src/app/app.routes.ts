@@ -11,10 +11,13 @@ import { EstudiantePanelComponent } from './pages/estudiante-panel/estudiante-pa
 import { DocentePanelComponent } from './pages/docente-panel/docente-panel.component';
 import { AdminPanelComponent } from './pages/admin-panel/admin-panel.component';
 import { ContactoComponent } from './pages/contacto/contacto.component';
+import { BeneficiosComponent } from './pages/beneficios/beneficios.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'index.html', component: HomeComponent },
+  { path: 'beneficios', component: BeneficiosComponent },
+  { path: 'beneficios.html', component: BeneficiosComponent },
   { path: 'cursos', component: CatalogoComponent },
   { path: 'cursos.html', component: CatalogoComponent },
   { path: 'contacto', component: ContactoComponent },

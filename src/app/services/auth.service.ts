@@ -316,26 +316,18 @@ export class AuthService {
       }
     }
 
-    const cleanCurrentNav = (currentPath.replace(/\.html$/, '') || 'index').toLowerCase();
-    const isHomePage = cleanCurrentNav === 'index' || cleanCurrentNav === '';
     const mainMenu = document.querySelector('#main-menu ul');
     if (mainMenu) {
       if (!user) {
-        if (isHomePage) {
-          mainMenu.innerHTML = `
-            <li><a class="nav-link active" href="/"><i class="fa fa-home me-1"></i> Inicio</a></li>
-            <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
-            <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-            <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
-          `;
-        } else {
-          mainMenu.innerHTML = `
-            <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
-            <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-            <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
-          `;
-        }
+        // Sin iniciar sesión: Inicio SIEMPRE visible en todas las páginas públicas
+        mainMenu.innerHTML = `
+          <li><a class="nav-link" href="/"><i class="fa fa-home me-1"></i> Inicio</a></li>
+          <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
+          <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+          <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
+        `;
       } else if (user.rol === 'ADMIN') {
+        // Perfil Admin: sin Inicio
         if (isPortalAdmin) {
           mainMenu.innerHTML = `
             <li><a class="nav-link active" id="nav-admin-cursos" href="javascript:void(0)" onclick="if(window.switchAdminTab)window.switchAdminTab('cursos')"><i class="fa fa-book me-1"></i> Cursos</a></li>
@@ -352,6 +344,7 @@ export class AuthService {
           `;
         }
       } else if (user.rol === 'DOCENTE') {
+        // Perfil Docente: sin Inicio
         if (isPortalDocente) {
           mainMenu.innerHTML = `
             <li><a class="nav-link active" id="nav-docente-cursos" href="javascript:void(0)" onclick="if(window.switchDocenteTab)window.switchDocenteTab('cursos')"><i class="fa fa-book me-1"></i> Mis Cursos</a></li>
@@ -367,22 +360,13 @@ export class AuthService {
           `;
         }
       } else {
-        if (isHomePage) {
-          mainMenu.innerHTML = `
-            <li><a class="nav-link active" href="/"><i class="fa fa-home me-1"></i> Inicio</a></li>
-            <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
-            <li><a class="nav-link" href="/mis-cursos"><i class="fa fa-graduation-cap me-1"></i> Mis Clases</a></li>
-            <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-            <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
-          `;
-        } else {
-          mainMenu.innerHTML = `
-            <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
-            <li><a class="nav-link" href="/mis-cursos"><i class="fa fa-graduation-cap me-1"></i> Mis Clases</a></li>
-            <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-            <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
-          `;
-        }
+        // Perfil Estudiante: sin Inicio
+        mainMenu.innerHTML = `
+          <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
+          <li><a class="nav-link" href="/mis-cursos"><i class="fa fa-graduation-cap me-1"></i> Mis Clases</a></li>
+          <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+          <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
+        `;
       }
     }
 
@@ -410,16 +394,9 @@ export class AuthService {
           <li><a href="/carrito">Mi Carrito</a></li>
           <li><a href="/contacto">Contacto</a></li>
         `;
-      } else if (isHomePage) {
-        footerMenu.innerHTML = `
-          <li><a href="/">Inicio</a></li>
-          <li><a href="/cursos">Cursos</a></li>
-          <li><a href="/carrito">Mi Carrito</a></li>
-          <li><a href="/login">Ingresar</a></li>
-          <li><a href="/contacto">Contacto</a></li>
-        `;
       } else {
         footerMenu.innerHTML = `
+          <li><a href="/">Inicio</a></li>
           <li><a href="/cursos">Cursos</a></li>
           <li><a href="/carrito">Mi Carrito</a></li>
           <li><a href="/login">Ingresar</a></li>
@@ -431,7 +408,23 @@ export class AuthService {
     document.querySelectorAll('.single_footer ul li a[href="/"]').forEach((a: any) => {
       const li = a.parentElement;
       if (li) {
-        li.style.display = (!user && isHomePage) ? '' : 'none';
+        li.style.display = !user ? '' : 'none';
+      }
+    });
+
+    // En las cabeceras de las páginas internas (.section-top-title ul):
+    // mostrar "Inicio / ..." cuando NO ha ingresado a un perfil, y ocultarlo cuando YA ingresó a su perfil
+    document.querySelectorAll('.section-top-title ul').forEach((ul: any) => {
+      const existingHome = ul.querySelector('li.breadcrumb-home-item');
+      if (!user) {
+        if (!existingHome) {
+          const li = document.createElement('li');
+          li.className = 'breadcrumb-home-item';
+          li.innerHTML = '<a href="/">Inicio</a>';
+          ul.insertBefore(li, ul.firstChild);
+        }
+      } else if (existingHome) {
+        existingHome.remove();
       }
     });
 

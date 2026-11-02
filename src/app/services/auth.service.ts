@@ -327,20 +327,17 @@ export class AuthService {
           <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
         `;
       } else if (user.rol === 'ADMIN') {
-        // Perfil Admin: sin Inicio
+        // Perfil Admin: únicamente opciones de administración (sin Inicio, sin Contacto, sin Carrito)
         if (isPortalAdmin) {
           mainMenu.innerHTML = `
             <li><a class="nav-link active" id="nav-admin-cursos" href="javascript:void(0)" onclick="if(window.switchAdminTab)window.switchAdminTab('cursos')"><i class="fa fa-book me-1"></i> Cursos</a></li>
             <li><a class="nav-link" id="nav-admin-pedidos" href="javascript:void(0)" onclick="if(window.switchAdminTab)window.switchAdminTab('pedidos')"><i class="fa fa-shopping-cart me-1"></i> Matrículas</a></li>
             <li><a class="nav-link" id="nav-admin-usuarios" href="javascript:void(0)" onclick="if(window.switchAdminTab)window.switchAdminTab('usuarios')"><i class="fa fa-users me-1"></i> Usuarios</a></li>
-            <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
           `;
         } else {
           mainMenu.innerHTML = `
-            <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
             <li><a class="nav-link" href="/portal-admin"><i class="fa fa-shield me-1"></i> Panel Admin</a></li>
-            <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-            <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
+            <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Catálogo</a></li>
           `;
         }
       } else if (user.rol === 'DOCENTE') {
@@ -378,7 +375,6 @@ export class AuthService {
           <li><a href="/portal-admin#cursos">Gestión Cursos</a></li>
           <li><a href="/portal-admin#pedidos">Matrículas</a></li>
           <li><a href="/portal-admin#usuarios">Usuarios</a></li>
-          <li><a href="/contacto">Contacto</a></li>
         `;
       } else if (user && user.rol === 'DOCENTE') {
         footerMenu.innerHTML = `

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CursoModel } from '../../services/config.data';
@@ -20,7 +20,7 @@ import { NotificationService } from '../../services/notification.service';
 				<div class="section-top-title">
 					<h1><i class="fa fa-briefcase me-2"></i>Portal del Docente</h1>
 					<ul>
-						<li><a href="index.html">Inicio</a></li>
+						<li><a href="/">Inicio</a></li>
 						<li> / Gestión de Cursos y Aulas</li>
 					</ul>
 				</div>
@@ -232,7 +232,7 @@ export class DocentePanelComponent implements AfterViewInit {
     if (!this.activeDocente) {
       this.notifications.showToast('Por favor inicia sesión con tu cuenta de docente.', 'info');
       setTimeout(() => {
-        this.router.navigateByUrl('/login.html?redirect=portal-docente.html');
+        this.router.navigateByUrl('/');
       }, 400);
       return;
     }
@@ -240,7 +240,7 @@ export class DocentePanelComponent implements AfterViewInit {
     if (this.activeDocente.rol !== 'DOCENTE' && this.activeDocente.rol !== 'ADMIN') {
       this.notifications.showToast('Acceso restringido: Esta sección es exclusiva para docentes.', 'warning');
       setTimeout(() => {
-        this.router.navigateByUrl('/mis-cursos.html');
+        this.router.navigateByUrl('/');
       }, 500);
       return;
     }
@@ -726,3 +726,5 @@ export class DocentePanelComponent implements AfterViewInit {
     }
   }
 }
+
+

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CursoModel } from '../../services/config.data';
@@ -20,7 +20,7 @@ import { NotificationService } from '../../services/notification.service';
 				<div class="section-top-title">
 					<h1><i class="fa fa-shield me-2 text-warning"></i>Portal del Administrador</h1>
 					<ul>
-						<li><a href="index.html">Inicio</a></li>
+						<li><a href="/">Inicio</a></li>
 						<li> / Control Central y Catálogo de Microservicios</li>
 					</ul>
 				</div>
@@ -324,7 +324,7 @@ export class AdminPanelComponent implements AfterViewInit {
     if (!user) {
       this.notifications.showToast('Por favor inicia sesión con tu cuenta de Administrador.', 'info');
       setTimeout(() => {
-        this.router.navigateByUrl('/login.html?redirect=portal-admin.html');
+        this.router.navigateByUrl('/');
       }, 400);
       return;
     }
@@ -419,7 +419,7 @@ export class AdminPanelComponent implements AfterViewInit {
           <td class="text-end">
             <div class="d-inline-flex gap-1">
               ${btnToggleEstado}
-              <a href="curso-detalle.html?id=${c.id}" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size: 11.5px;" title="Ver ficha pública">
+              <a href="/curso-detalle?id=${c.id}" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size: 11.5px;" title="Ver ficha pública">
                 <i class="fa fa-external-link"></i>
               </a>
             </div>
@@ -718,3 +718,4 @@ export class AdminPanelComponent implements AfterViewInit {
     }
   }
 }
+

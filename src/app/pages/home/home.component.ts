@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { APP_CONFIG, CursoModel } from '../../services/config.data';
@@ -24,7 +24,7 @@ import { NotificationService } from '../../services/notification.service';
 						<p>Inscripción 100% automatizada: Elige tu curso, reserva tu vacante en tiempo real sin sobreventa, paga seguro con Mercado Pago y recibe al instante tu boleta y tus accesos de Zoom o Aula por WhatsApp.</p>						
 					</div>
 					<div class="home_btn">
-						<a href="cursos.html" class="cta"><span>Explorar Cursos</span>
+						<a href="/cursos" class="cta"><span>Explorar Cursos</span>
 						  <svg width="13px" height="10px" viewBox="0 0 13 10">
 							<path d="M1,5 L11,5"></path>
 							<polyline points="8 1 12 5 8 9"></polyline>
@@ -60,7 +60,7 @@ import { NotificationService } from '../../services/notification.service';
 					<div class="single_tp">
 						<h3>Cero Sobreventa de Vacantes</h3>
 						<p>Control automático que descuenta los cupos en el momento exacto en que compras, garantizando tu asiento en el aula física o tu cupo en Zoom.</p>
-						<a href="beneficios.html?tema=vacantes" class="cta"><span>Ver Cursos Disponibles</span>
+						<a href="/beneficios?tema=vacantes" class="cta"><span>Ver Cursos Disponibles</span>
 						  <svg width="13px" height="10px" viewBox="0 0 13 10"><path d="M1,5 L11,5"></path><polyline points="8 1 12 5 8 9"></polyline></svg>
 						</a>
 					</div>
@@ -69,7 +69,7 @@ import { NotificationService } from '../../services/notification.service';
 					<div class="single_tp">
 						<h3>Pago Seguro con Mercado Pago</h3>
 						<p>Paga en línea al instante con tarjeta de crédito, débito o Yape/Plin mediante pasarela cifrada sin esperar transferencias manuales.</p>
-						<a href="beneficios.html?tema=pasarela" class="cta"><span>Conocer Pasarela</span>
+						<a href="/beneficios?tema=pasarela" class="cta"><span>Conocer Pasarela</span>
 						  <svg width="13px" height="10px" viewBox="0 0 13 10"><path d="M1,5 L11,5"></path><polyline points="8 1 12 5 8 9"></polyline></svg>
 						</a>
 					</div>
@@ -78,7 +78,7 @@ import { NotificationService } from '../../services/notification.service';
 					<div class="single_tp">
 						<h3>WhatsApp & Boleta Inmediatos</h3>
 						<p>Recibe tu Boleta o Factura electrónica al instante y un mensaje automático a tu WhatsApp con los enlaces de clase o dirección del laboratorio.</p>
-						<a href="beneficios.html?tema=boleta" class="cta"><span>Mis Matrículas</span>
+						<a href="/beneficios?tema=boleta" class="cta"><span>Mis Matrículas</span>
 						  <svg width="13px" height="10px" viewBox="0 0 13 10"><path d="M1,5 L11,5"></path><polyline points="8 1 12 5 8 9"></polyline></svg>
 						</a>
 					</div>
@@ -112,7 +112,7 @@ import { NotificationService } from '../../services/notification.service';
 						<h4>Clases Presenciales en Sede</h4>
 						<p>Laboratorios de cómputo y aulas físicas equipadas con asignación estricta de carpetas para garantizar tu comodidad.</p>
 					</div>	
-					<a class="btn_one" href="cursos.html">Explorar Todos los Cursos</a>
+					<a class="btn_one" href="/cursos">Explorar Todos los Cursos</a>
 				</div>								  
 			</div>
 		</div>
@@ -139,7 +139,7 @@ import { NotificationService } from '../../services/notification.service';
 
 			<div class="row mt-4">
 				<div class="col-12 text-center">
-					<a href="cursos.html" class="btn_one" style="padding: 13px 32px; font-size: 15px; font-weight: 800; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+					<a href="/cursos" class="btn_one" style="padding: 13px 32px; font-size: 15px; font-weight: 800; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
 						<i class="fa fa-graduation-cap"></i> Ver Catálogo Completo de Cursos <i class="fa fa-arrow-right"></i>
 					</a>
 				</div>
@@ -306,7 +306,7 @@ export class HomeComponent implements AfterViewInit {
       let actionBtnHtml = '';
       if (isPaid) {
         actionBtnHtml = `
-          <a href="mis-cursos.html" class="btn_one btn-card-enrolled" style="text-decoration: none; padding: 7px 14px; font-size: 12.5px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+          <a href="/mis-cursos" class="btn_one btn-card-enrolled" style="text-decoration: none; padding: 7px 14px; font-size: 12.5px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
             <i class="fa fa-graduation-cap"></i> Ir a Mi Clase
           </a>
         `;
@@ -328,7 +328,7 @@ export class HomeComponent implements AfterViewInit {
         <div class="col-lg-4 col-sm-6 col-xs-12" style="margin-bottom: 30px;">
           <div class="course-slide" style="height: 100%; display: flex; flex-direction: column; box-shadow: 0 5px 20px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; background: #fff; position: relative;">
             <div class="course-img" style="position: relative;">
-              <a href="curso-detalle.html?id=${c.id}">
+              <a href="/curso-detalle?id=${c.id}">
                 <img src="${imgUrl}" alt="${c.titulo}" style="width: 100%; height: 210px; object-fit: cover;">
               </a>
               ${enrolledTag}
@@ -340,7 +340,7 @@ export class HomeComponent implements AfterViewInit {
               <div>
                 <div class="mb-2">${badgeHtml}</div>
                 <h3 style="font-size: 18px; line-height: 1.4; margin-bottom: 12px; min-height: 50px;">
-                  <a href="curso-detalle.html?id=${c.id}">${c.titulo}</a>
+                  <a href="/curso-detalle?id=${c.id}">${c.titulo}</a>
                 </h3>
                 <span class="d-block text-muted mb-1" style="font-size: 14px;"><i class="fa fa-calendar text-primary me-1"></i> ${c.horario}</span>
                 <span class="d-block text-muted mb-3" style="font-size: 14px;"><i class="fa fa-user-circle text-secondary me-1"></i> ${docenteNombre}</span>
@@ -349,7 +349,7 @@ export class HomeComponent implements AfterViewInit {
                 </div>
               </div>
               <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                <a class="c_btn" href="curso-detalle.html?id=${c.id}"><i class="fa fa-book me-1"></i> Ver Temario</a>
+                <a class="c_btn" href="/curso-detalle?id=${c.id}"><i class="fa fa-book me-1"></i> Ver Temario</a>
                 ${actionBtnHtml}
               </div>
             </div>
@@ -369,7 +369,7 @@ export class HomeComponent implements AfterViewInit {
       c = cached.find(item => item.id === cursoId);
     }
     if (!c) {
-      this.router.navigateByUrl('/carrito.html');
+      this.router.navigateByUrl('/');
       return;
     }
 
@@ -380,7 +380,9 @@ export class HomeComponent implements AfterViewInit {
 
     this.notifications.showToast(res.message || '¡Curso agregado a tu carrito!', 'success');
     setTimeout(() => {
-      this.router.navigateByUrl('/carrito.html');
+      this.router.navigateByUrl('/');
     }, 500);
   }
 }
+
+

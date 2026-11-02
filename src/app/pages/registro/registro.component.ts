@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -18,7 +18,7 @@ import { NotificationService } from '../../services/notification.service';
 				<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
 					<h1>Registro de Estudiantes</h1>
 					<ul>
-						<li><a href="index.html">Inicio</a></li>
+						<li><a href="/">Inicio</a></li>
 						<li> / Crear Cuenta de Alumno</li>
 					</ul>
 				</div>
@@ -66,7 +66,7 @@ import { NotificationService } from '../../services/notification.service';
 							</div>
 						</form>
 
-						<p class="mt-3 text-center">¿Ya tienes cuenta? <a href="login.html" class="fw-bold text-success">Inicia sesión</a></p>
+						<p class="mt-3 text-center">¿Ya tienes cuenta? <a href="/login" class="fw-bold text-success">Inicia sesión</a></p>
 					</div>
 				</div>
 			</div>
@@ -86,8 +86,8 @@ export class RegistroComponent implements AfterViewInit {
     this.authService.updateNavbar();
     const redirectUrl = new URLSearchParams(window.location.search).get('redirect');
     if (redirectUrl) {
-      document.querySelectorAll('a[href="login.html"], a[href^="login.html?"]').forEach((link: any) => {
-        link.href = 'login.html?redirect=' + encodeURIComponent(redirectUrl);
+      document.querySelectorAll('a[href="/login"], a[href^="/login?"]').forEach((link: any) => {
+        link.href = '/' + encodeURIComponent(redirectUrl);
       });
     }
   }
@@ -145,7 +145,7 @@ export class RegistroComponent implements AfterViewInit {
 
     try {
       await this.authService.registro(data);
-      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || 'index.html';
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/';
       const isCheckout = redirectUrl.includes('checkout');
 
       if (btn) {
@@ -171,3 +171,4 @@ export class RegistroComponent implements AfterViewInit {
     }
   }
 }
+

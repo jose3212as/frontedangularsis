@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { APP_CONFIG } from '../../services/config.data';
@@ -116,7 +116,7 @@ export class CarritoComponent implements AfterViewInit, OnDestroy {
             <i class="ti-shopping-cart text-muted" style="font-size: 72px;"></i>
             <h3 class="mt-3">Tu carrito de matrícula está vacío</h3>
             <p class="text-muted">No tienes ningún curso reservado en este momento.</p>
-            <a href="cursos.html" class="btn_one mt-3">Ver Catálogo de Cursos</a>
+            <a href="/cursos" class="btn_one mt-3">Ver Catálogo de Cursos</a>
           </div>
         </div>
       `;
@@ -140,7 +140,7 @@ export class CarritoComponent implements AfterViewInit, OnDestroy {
             <img src="${item.imagen || 'assets/images/all-img/c1.png'}" alt="${item.titulo}">
           </td>
           <td class="product-des" data-title="Descripción">
-            <p class="product-name"><a href="curso-detalle.html?id=${item.id}">${item.titulo}</a></p>
+            <p class="product-name"><a href="/curso-detalle?id=${item.id}">${item.titulo}</a></p>
             <p class="product-des mb-1">${badge} &bull; Horario: ${item.horario || 'Horario asignado'}</p>
             <small class="text-muted"><i class="fa fa-user"></i> ${item.docente || 'Docente asignado'}</small>
           </td>
@@ -205,7 +205,7 @@ export class CarritoComponent implements AfterViewInit, OnDestroy {
                   </ul>
                   <div class="button5">
                     <a href="javascript:void(0)" onclick="window.procederAlPago(); return false;" class="btn">Continuar al Pago</a>
-                    <a href="cursos.html" class="btn">Seguir Explorando Cursos</a>
+                    <a href="/cursos" class="btn">Seguir Explorando Cursos</a>
                   </div>
                 </div>
               </div>
@@ -224,9 +224,9 @@ export class CarritoComponent implements AfterViewInit, OnDestroy {
     }
 
     if (!this.authService.isAuthenticated()) {
-      this.router.navigateByUrl('/login.html?redirect=checkout.html');
+      this.router.navigateByUrl('/');
     } else {
-      this.router.navigateByUrl('/checkout.html');
+      this.router.navigateByUrl('/');
     }
   }
 
@@ -274,3 +274,5 @@ export class CarritoComponent implements AfterViewInit, OnDestroy {
     }
   }
 }
+
+

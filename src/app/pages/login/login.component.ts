@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -18,7 +18,7 @@ import { NotificationService } from '../../services/notification.service';
 				<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
 					<h1>Ingreso de Alumnos</h1>
 					<ul>
-						<li><a href="index.html">Inicio</a></li>
+						<li><a href="/">Inicio</a></li>
 						<li> / Iniciar Sesión</li>
 					</ul>
 				</div>
@@ -70,7 +70,7 @@ import { NotificationService } from '../../services/notification.service';
 							</div>
 						</form>
 
-						<p class="mt-4 text-center">¿Eres nuevo estudiante? <a href="registro.html" class="fw-bold text-success">Regístrate aquí</a></p>
+						<p class="mt-4 text-center">¿Eres nuevo estudiante? <a href="/registro" class="fw-bold text-success">Regístrate aquí</a></p>
 					</div>
 
 					<!-- MODAL DE VERIFICACIÓN 2FA -->
@@ -123,9 +123,9 @@ export class LoginComponent implements AfterViewInit {
     const redirectUrl = params.get('redirect');
     if (redirectUrl) {
       this.notifications.showToast('Ingresa con tu usuario para completar tu inscripción.', 'info');
-      const linkReg = document.querySelector('a[href="registro.html"]') as HTMLAnchorElement | null;
+      const linkReg = document.querySelector('a[href="/registro"]') as HTMLAnchorElement | null;
       if (linkReg) {
-        linkReg.href = 'registro.html?redirect=' + encodeURIComponent(redirectUrl);
+        linkReg.href = '/' + encodeURIComponent(redirectUrl);
       }
     }
   }
@@ -261,3 +261,4 @@ export class LoginComponent implements AfterViewInit {
     await this.hacerLogin();
   }
 }
+

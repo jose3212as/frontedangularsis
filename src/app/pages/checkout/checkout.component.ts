@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -211,7 +211,7 @@ export class CheckoutComponent implements AfterViewInit, OnDestroy {
               <i class="ti-shopping-cart text-muted" style="font-size: 72px;"></i>
               <h3 class="mt-3">Tu carrito de matrícula está vacío</h3>
               <p class="text-muted">Selecciona un curso del catálogo para proceder al pago.</p>
-              <a href="cursos.html" class="btn_one mt-3">Ver Catálogo de Cursos</a>
+              <a href="/cursos" class="btn_one mt-3">Ver Catálogo de Cursos</a>
             </div>
           </div>
         `;
@@ -267,8 +267,8 @@ export class CheckoutComponent implements AfterViewInit, OnDestroy {
           <span class="ti-user"></span>
           <h4>Inicia sesión para continuar</h4>
           <p class="mb-2">Necesitas ingresar con tu cuenta de alumno para registrar tu matrícula.</p>
-          <a href="login.html?redirect=checkout.html" class="btn_one me-2">Iniciar Sesión</a>
-          <a href="registro.html?redirect=checkout.html" class="btn_two">Crear Cuenta</a>
+          <a href="/login?redirect=checkout.html" class="btn_one me-2">Iniciar Sesión</a>
+          <a href="/registro?redirect=checkout.html" class="btn_two">Crear Cuenta</a>
         </div>
       `;
     }
@@ -478,7 +478,7 @@ export class CheckoutComponent implements AfterViewInit, OnDestroy {
       this.cartService.clearCart();
 
       setTimeout(() => {
-        this.router.navigateByUrl('/confirmacion.html');
+        this.router.navigateByUrl('/');
       }, 600);
     } catch (err: any) {
       this.notifications.showToast('Error al confirmar matrícula: ' + err?.message, 'error');
@@ -496,3 +496,5 @@ export class CheckoutComponent implements AfterViewInit, OnDestroy {
     }
   }
 }
+
+

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
@@ -76,7 +76,7 @@ import { AuthService } from '../../services/auth.service';
 					<!-- Columna 1: Logo & Descripción -->
 					<div class="col-lg-3 col-sm-6 col-12 mb-4 mb-lg-0">
 						<div class="single_footer">
-							<a href="index.html" class="d-inline-block mb-3">
+							<a href="/" class="d-inline-block mb-3">
 								<img src="assets/images/all-img/logo2.png" alt="Gestión de Cursos" style="max-height: 48px; width: auto;">
 							</a>
 							<p>Plataforma líder en capacitación profesional con clases virtuales en vivo y presenciales en Lima. Inscripción automatizada con Mercado Pago y soporte académico continuo.</p>
@@ -96,11 +96,11 @@ import { AuthService } from '../../services/auth.service';
 						<div class="single_footer">
 							<h4>Enlaces Rápidos</h4>
 							<ul>
-								<li><a href="index.html">Inicio</a></li>
-								<li><a href="cursos.html">Catálogo de Cursos</a></li>
-								<li><a href="carrito.html">Carrito de Matrícula</a></li>
-								<li><a href="mis-cursos.html">Mis Cursos</a></li>
-								<li><a href="login.html">Portal de Alumnos</a></li>
+								<li><a href="/">Inicio</a></li>
+								<li><a href="/cursos">Catálogo de Cursos</a></li>
+								<li><a href="/carrito">Carrito de Matrícula</a></li>
+								<li><a href="/mis-cursos">Mis Cursos</a></li>
+								<li><a href="/login">Portal de Alumnos</a></li>
 							</ul>
 						</div>
 					</div><!--- END COL -->
@@ -110,11 +110,11 @@ import { AuthService } from '../../services/auth.service';
 						<div class="single_footer">
 							<h4>Modalidades & Pagos</h4>
 							<ul>
-								<li><a href="cursos.html?modalidad=VIRTUAL">Clases Virtuales en Vivo</a></li>
-								<li><a href="cursos.html?modalidad=PRESENCIAL">Clases Presenciales en Sede</a></li>
-								<li><a href="carrito.html">Mercado Pago (Tarjetas & Yape)</a></li>
+								<li><a href="/cursos?modalidad=VIRTUAL">Clases Virtuales en Vivo</a></li>
+								<li><a href="/cursos?modalidad=PRESENCIAL">Clases Presenciales en Sede</a></li>
+								<li><a href="/carrito">Mercado Pago (Tarjetas & Yape)</a></li>
 								<li><a href="#">Comprobantes de Pago (Boleta / Factura)</a></li>
-								<li><a href="contacto.html">Mesa de Ayuda al Estudiante</a></li>
+								<li><a href="/contacto">Mesa de Ayuda al Estudiante</a></li>
 							</ul>
 						</div>
 					</div><!--- END COL -->
@@ -152,10 +152,10 @@ import { AuthService } from '../../services/auth.service';
 					<div class="col-lg-6 col-sm-6 col-12 text-center text-sm-end">
 						<div class="footer_menu">
 							<ul>
-								<li><a href="index.html">Inicio</a></li>
-								<li><a href="cursos.html">Cursos</a></li>
-								<li><a href="carrito.html">Carrito</a></li>
-								<li><a href="contacto.html">Contacto</a></li>
+								<li><a href="/">Inicio</a></li>
+								<li><a href="/cursos">Cursos</a></li>
+								<li><a href="/carrito">Carrito</a></li>
+								<li><a href="/contacto">Contacto</a></li>
 							</ul>
 						</div>
 					</div><!--- END COL -->
@@ -186,7 +186,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   onLogout(): void {
-    this.authService.logout('index.html');
+    this.authService.logout('/');
   }
 
   private checkPortalRoute(url: string): void {
@@ -199,3 +199,4 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.navSub?.unsubscribe();
   }
 }
+

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
@@ -153,7 +153,7 @@ import { NotificationService } from '../../services/notification.service';
 						</div>
 						<div>
 							<strong style="font-size: 15px; display: block; margin-bottom: 2px;">¡Matrícula Confirmada y Registrada!</strong>
-							<span>Tu pago ha sido acreditado y tu vacante ha quedado asegurada. Tu comprobante oficial y los accesos a tus clases ya están disponibles directamente en tu cuenta en el apartado <a href="mis-cursos.html" style="font-weight: 700; color: #15803d; text-decoration: underline;">Mis Clases</a>.</span>
+							<span>Tu pago ha sido acreditado y tu vacante ha quedado asegurada. Tu comprobante oficial y los accesos a tus clases ya están disponibles directamente en tu cuenta en el apartado <a href="/mis-cursos" style="font-weight: 700; color: #15803d; text-decoration: underline;">Mis Clases</a>.</span>
 						</div>
 					</div>
 				</div>
@@ -162,11 +162,11 @@ import { NotificationService } from '../../services/notification.service';
 			<!-- Botones de Acción Final -->
 			<div class="row" style="margin-top: 25px; margin-bottom: 20px;">
 				<div class="col-12 text-center">
-					<a href="mis-cursos.html" class="btn-primary-classes">
+					<a href="/mis-cursos" class="btn-primary-classes">
 						<i class="fa fa-graduation-cap"></i> Ingresar a Mis Clases
 					</a>
 					<div class="mt-3">
-						<a href="index.html" class="back-home-link" style="font-size: 13.5px; color: #64748b; text-decoration: none; font-weight: 600;">
+						<a href="/" class="back-home-link" style="font-size: 13.5px; color: #64748b; text-decoration: none; font-weight: 600;">
 							<i class="fa fa-arrow-left me-1"></i> Volver al Catálogo Principal
 						</a>
 					</div>
@@ -371,3 +371,4 @@ export class ConfirmacionComponent implements AfterViewInit {
     }, 400);
   }
 }
+

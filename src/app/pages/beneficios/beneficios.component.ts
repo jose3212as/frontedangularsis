@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -85,8 +85,8 @@ import { CartService } from '../../services/cart.service';
 							<p>Cuando un curso alcanza el límite de su capacidad, el catálogo cambia su estado a "Aforo Completo (Agotado)" impidiendo pagos adicionales.</p>
 						</div>
 						<div class="mt-4">
-							<a class="btn_one me-2 mb-2" href="cursos.html"><i class="fa fa-book me-1"></i> Ir al Catálogo de Cursos Disponibles</a>
-							<a class="btn_two mb-2" href="contacto.html">Contacto y Soporte</a>
+							<a class="btn_one me-2 mb-2" href="/cursos"><i class="fa fa-book me-1"></i> Ir al Catálogo de Cursos Disponibles</a>
+							<a class="btn_two mb-2" href="/contacto">Contacto y Soporte</a>
 						</div>
 					</div>								  
 				</div>
@@ -104,7 +104,7 @@ import { CartService } from '../../services/cart.service';
 						<div class="single_feature_one">
 							<div class="sf_top">
 								<span class="ti-search ss_one"></span>
-								<h2><a href="cursos.html">1. Consulta en Vivo</a></h2>
+								<h2><a href="/cursos">1. Consulta en Vivo</a></h2>
 							</div>
 							<p>Visualiza en cada tarjeta del catálogo la cantidad exacta de vacantes libres antes de agregar el curso a tu carrito.</p>
 						</div>
@@ -113,7 +113,7 @@ import { CartService } from '../../services/cart.service';
 						<div class="single_feature_one">
 							<div class="sf_top">
 								<span class="ti-shopping-cart-full ss_two"></span>
-								<h2><a href="carrito.html">2. Validación de Cupo</a></h2>
+								<h2><a href="/carrito">2. Validación de Cupo</a></h2>
 							</div>
 							<p>Al iniciar el proceso de pago, el sistema verifica que el curso cuente con disponibilidad activa en el servidor.</p>
 						</div>
@@ -122,7 +122,7 @@ import { CartService } from '../../services/cart.service';
 						<div class="single_feature_one">
 							<div class="sf_top">
 								<span class="ti-Lock ss_three"></span>
-								<h2><a href="mis-cursos.html">3. Asignación Inmediata</a></h2>
+								<h2><a href="/mis-cursos">3. Asignación Inmediata</a></h2>
 							</div>
 							<p>Confirmado el pago, tu vacante queda descontada y registrada a tu nombre en el listado oficial del docente.</p>
 						</div>
@@ -171,8 +171,8 @@ import { CartService } from '../../services/cart.service';
 							<p>En cuanto la pasarela aprueba la transacción, tu orden pasa automáticamente a estado PAGADO y habilita tus cursos sin intervención manual.</p>
 						</div>
 						<div class="mt-4">
-							<a class="btn_one me-2 mb-2" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Ir a Mi Carrito y Pasarela</a>
-							<a class="btn_two mb-2" href="cursos.html">Explorar Cursos</a>
+							<a class="btn_one me-2 mb-2" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Ir a Mi Carrito y Pasarela</a>
+							<a class="btn_two mb-2" href="/cursos">Explorar Cursos</a>
 						</div>
 					</div>								  
 				</div>
@@ -190,7 +190,7 @@ import { CartService } from '../../services/cart.service';
 						<div class="single_feature_one">
 							<div class="sf_top">
 								<span class="ti-bag ss_one"></span>
-								<h2><a href="carrito.html">1. Revisa tu Carrito</a></h2>
+								<h2><a href="/carrito">1. Revisa tu Carrito</a></h2>
 							</div>
 							<p>Selecciona tus cursos virtuales o presenciales y verifica el resumen detallado con Subtotal e IGV (18%).</p>
 						</div>
@@ -199,7 +199,7 @@ import { CartService } from '../../services/cart.service';
 						<div class="single_feature_one">
 							<div class="sf_top">
 								<span class="ti-credit-card ss_two"></span>
-								<h2><a href="checkout.html">2. Elige tu Medio de Pago</a></h2>
+								<h2><a href="/checkout">2. Elige tu Medio de Pago</a></h2>
 							</div>
 							<p>Ingresa los datos de tu tarjeta o selecciona pago rápido con billetera digital dentro de la pasarela segura.</p>
 						</div>
@@ -208,7 +208,7 @@ import { CartService } from '../../services/cart.service';
 						<div class="single_feature_one">
 							<div class="sf_top">
 								<span class="ti-check ss_three"></span>
-								<h2><a href="confirmacion.html">3. Confirmación al Segundo</a></h2>
+								<h2><a href="/confirmacion">3. Confirmación al Segundo</a></h2>
 							</div>
 							<p>Recibe en pantalla tu código de operación, tu comprobante electrónico y el acceso inmediato a tus clases.</p>
 						</div>
@@ -257,8 +257,8 @@ import { CartService } from '../../services/cart.service';
 							<p>En tu portal de estudiante encontrarás todos tus cursos pagados, horarios, docentes, enlaces de transmisión y comprobantes emitidos.</p>
 						</div>
 						<div class="mt-4">
-							<a class="btn_one me-2 mb-2" href="mis-cursos.html"><i class="fa fa-graduation-cap me-1"></i> Ir a Mis Matrículas</a>
-							<a class="btn_two mb-2" href="cursos.html">Ver Catálogo de Cursos</a>
+							<a class="btn_one me-2 mb-2" href="/mis-cursos"><i class="fa fa-graduation-cap me-1"></i> Ir a Mis Matrículas</a>
+							<a class="btn_two mb-2" href="/cursos">Ver Catálogo de Cursos</a>
 						</div>
 					</div>								  
 				</div>
@@ -276,7 +276,7 @@ import { CartService } from '../../services/cart.service';
 						<div class="single_feature_one">
 							<div class="sf_top">
 								<span class="ti-files ss_one"></span>
-								<h2><a href="mis-cursos.html">1. Boleta / Factura</a></h2>
+								<h2><a href="/mis-cursos">1. Boleta / Factura</a></h2>
 							</div>
 							<p>Comprobante electrónico numerado (<strong>B001</strong> o <strong>F001</strong>) con el detalle de tus cursos matriculados e impuestos de ley.</p>
 						</div>
@@ -285,7 +285,7 @@ import { CartService } from '../../services/cart.service';
 						<div class="single_feature_one">
 							<div class="sf_top">
 								<span class="ti-comment-alt ss_two"></span>
-								<h2><a href="mis-cursos.html">2. Alerta por WhatsApp</a></h2>
+								<h2><a href="/mis-cursos">2. Alerta por WhatsApp</a></h2>
 							</div>
 							<p>Notificación directa a tu número registrado con las credenciales de acceso virtual o el pabellón y aula presencial.</p>
 						</div>
@@ -294,7 +294,7 @@ import { CartService } from '../../services/cart.service';
 						<div class="single_feature_one">
 							<div class="sf_top">
 								<span class="ti-bookmark-alt ss_three"></span>
-								<h2><a href="mis-cursos.html">3. Acceso al Portal</a></h2>
+								<h2><a href="/mis-cursos">3. Acceso al Portal</a></h2>
 							</div>
 							<p>Ingreso inmediato a la sección "Mis Clases" para unirte a tus sesiones en vivo y descargar tus constancias.</p>
 						</div>
@@ -393,3 +393,4 @@ export class BeneficiosComponent implements OnInit, AfterViewInit, OnDestroy {
     this.qSub?.unsubscribe();
   }
 }
+

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -392,7 +392,7 @@ export class CatalogoComponent implements AfterViewInit, OnDestroy {
       let actionBtnHtml = '';
       if (isPaid) {
         actionBtnHtml = `
-          <a href="mis-cursos.html" class="btn_one btn-card-enrolled" style="text-decoration: none; padding: 7px 14px; font-size: 12.5px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+          <a href="/mis-cursos" class="btn_one btn-card-enrolled" style="text-decoration: none; padding: 7px 14px; font-size: 12.5px; font-weight: 700; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
             <i class="fa fa-graduation-cap"></i> Ir a Mi Clase
           </a>
         `;
@@ -414,7 +414,7 @@ export class CatalogoComponent implements AfterViewInit, OnDestroy {
         <div class="col-lg-4 col-sm-6 col-xs-12" style="margin-bottom: 30px;">
           <div class="course-slide" style="height: 100%; display: flex; flex-direction: column; box-shadow: 0 5px 20px rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; background: #fff; position: relative;">
             <div class="course-img" style="position: relative;">
-              <a href="curso-detalle.html?id=${c.id}">
+              <a href="/curso-detalle?id=${c.id}">
                 <img src="${imgUrl}" alt="${c.titulo}" style="width: 100%; height: 210px; object-fit: cover;">
               </a>
               ${enrolledTag}
@@ -426,7 +426,7 @@ export class CatalogoComponent implements AfterViewInit, OnDestroy {
               <div>
                 <div class="mb-2">${badgeHtml}</div>
                 <h3 style="font-size: 18px; line-height: 1.4; margin-bottom: 12px; min-height: 50px;">
-                  <a href="curso-detalle.html?id=${c.id}">${c.titulo}</a>
+                  <a href="/curso-detalle?id=${c.id}">${c.titulo}</a>
                 </h3>
                 <span class="d-block text-muted mb-1" style="font-size: 14px;"><i class="fa fa-calendar text-primary me-1"></i> ${c.horario}</span>
                 <span class="d-block text-muted mb-3" style="font-size: 14px;"><i class="fa fa-user-circle text-secondary me-1"></i> ${docenteNombre}</span>
@@ -435,7 +435,7 @@ export class CatalogoComponent implements AfterViewInit, OnDestroy {
                 </div>
               </div>
               <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                <a class="c_btn" href="curso-detalle.html?id=${c.id}"><i class="fa fa-book me-1"></i> Ver Temario</a>
+                <a class="c_btn" href="/curso-detalle?id=${c.id}"><i class="fa fa-book me-1"></i> Ver Temario</a>
                 ${actionBtnHtml}
               </div>
             </div>
@@ -455,7 +455,7 @@ export class CatalogoComponent implements AfterViewInit, OnDestroy {
       c = cached.find(item => item.id === cursoId);
     }
     if (!c) {
-      this.router.navigateByUrl('/carrito.html');
+      this.router.navigateByUrl('/');
       return;
     }
 
@@ -466,7 +466,7 @@ export class CatalogoComponent implements AfterViewInit, OnDestroy {
 
     this.notifications.showToast(res.message || '¡Curso agregado a tu carrito!', 'success');
     setTimeout(() => {
-      this.router.navigateByUrl('/carrito.html');
+      this.router.navigateByUrl('/');
     }, 500);
   }
 
@@ -474,3 +474,5 @@ export class CatalogoComponent implements AfterViewInit, OnDestroy {
     this.qSub?.unsubscribe();
   }
 }
+
+

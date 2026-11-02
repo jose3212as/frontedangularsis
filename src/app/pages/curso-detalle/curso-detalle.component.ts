@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, combineLatest } from 'rxjs';
@@ -94,8 +94,8 @@ import { NotificationService } from '../../services/notification.service';
 							<button id="btn-enroll-action" class="btn btn-default acc_btn" style="cursor: pointer;">
 								<i class="fa fa-shopping-cart me-1"></i> Inscribirme
 							</button>
-							<a href="carrito.html" class="btn btn-default acc_btn btn_icn"><i class="fa fa-shopping-bag"></i></a>
-							<a href="cursos.html" class="btn btn-default acc_btn btn_icn"><i class="fa fa-arrow-left"></i></a>
+							<a href="/carrito" class="btn btn-default acc_btn btn_icn"><i class="fa fa-shopping-bag"></i></a>
+							<a href="/cursos" class="btn btn-default acc_btn btn_icn"><i class="fa fa-arrow-left"></i></a>
 						</div>
 
 						<div class="pd_share_area fix mt-3">
@@ -296,7 +296,7 @@ export class CursoDetalleComponent implements AfterViewInit, OnDestroy {
         btnAction.style.background = '#16a34a';
         btnAction.innerHTML = `<i class="fa fa-graduation-cap me-1"></i> Ir a Mis Clases`;
         btnAction.onclick = () => {
-          this.router.navigateByUrl('/mis-cursos.html');
+          this.router.navigateByUrl('/');
         };
       } else if (libres <= 0) {
         seatsBox.innerHTML = `<span class="seats-live-badge soldout"><i class="fa fa-times-circle"></i> Aforo Completo (0 vacantes disponibles)</span>`;
@@ -320,7 +320,7 @@ export class CursoDetalleComponent implements AfterViewInit, OnDestroy {
           this.cartService.bumpBadge();
           this.notifications.showToast(res.message || '¡Curso agregado al carrito!', 'success');
           setTimeout(() => {
-            this.router.navigateByUrl('/carrito.html');
+            this.router.navigateByUrl('/');
           }, 300);
         };
       }
@@ -418,3 +418,5 @@ export class CursoDetalleComponent implements AfterViewInit, OnDestroy {
     this.sub?.unsubscribe();
   }
 }
+
+

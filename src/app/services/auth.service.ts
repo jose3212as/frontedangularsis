@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { APP_CONFIG } from './config.data';
 import { ApiService } from './api.service';
@@ -54,7 +54,7 @@ export class AuthService {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      (window as any).__ngAuthLogout = () => this.logout('index.html');
+      (window as any).__ngAuthLogout = () => this.logout('/');
     }
   }
 
@@ -210,7 +210,7 @@ export class AuthService {
     localStorage.setItem(APP_CONFIG.STORAGE_KEYS.USER, JSON.stringify({ ...user, ...clean }));
   }
 
-  logout(redirectUrl: string | null = 'index.html'): void {
+  logout(redirectUrl: string | null = '/'): void {
     localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.TOKEN);
     localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.USER);
     localStorage.removeItem('app_order_history');
@@ -238,14 +238,14 @@ export class AuthService {
   }
 
   getPortalUrlForRole(rol?: string): string {
-    if (!rol) return 'index.html';
+    if (!rol) return '/';
     const r = String(rol).toUpperCase();
-    if (r === 'ADMIN') return 'portal-admin.html';
-    if (r === 'DOCENTE') return 'portal-docente.html';
-    return 'mis-cursos.html';
+    if (r === 'ADMIN') return '/';
+    if (r === 'DOCENTE') return '/';
+    return '/';
   }
 
-  getSafeRedirect(fallback = 'index.html'): string {
+  getSafeRedirect(fallback = '/'): string {
     const raw = new URLSearchParams(window.location.search).get('redirect');
     if (!raw) return fallback;
     const ok = /^[a-z0-9\-]+(\.html)?(\?[\w=&%\-.]*)?$/i.test(raw);
@@ -259,18 +259,18 @@ export class AuthService {
     if (document.documentElement) document.documentElement.classList.toggle('is-logged-in', !!user);
     if (document.body) document.body.classList.toggle('is-logged-in', !!user);
 
-    const currentPath = (typeof window !== 'undefined' ? (window.location.pathname || '').split('/').pop() : '') || 'index.html';
+    const currentPath = (typeof window !== 'undefined' ? (window.location.pathname || '').split('/').pop() : '') || '/';
 
     const logoLink = document.querySelector('.site-logo a, .brand-logo-link') as HTMLAnchorElement | null;
     if (logoLink) {
       if (user && user.rol === 'DOCENTE') {
-        logoLink.href = 'portal-docente.html';
+        logoLink.href = '/';
       } else if (user && user.rol === 'ADMIN') {
-        logoLink.href = 'portal-admin.html';
+        logoLink.href = '/';
       } else if (user && user.rol === 'ESTUDIANTE') {
-        logoLink.href = 'mis-cursos.html';
+        logoLink.href = '/';
       } else {
-        logoLink.href = 'index.html';
+        logoLink.href = '/';
       }
     }
 
@@ -286,16 +286,16 @@ export class AuthService {
     if (container) {
       if (user) {
         const primerNombre = (user.nombres || 'Usuario').split(' ')[0];
-        let portalUrl = 'mis-cursos.html';
+        let portalUrl = '/';
         let rolLabel = 'Alumno';
         let iconClass = 'fa fa-graduation-cap';
 
         if (user.rol === 'ADMIN') {
-          portalUrl = 'portal-admin.html';
+          portalUrl = '/';
           rolLabel = 'Admin';
           iconClass = 'fa fa-shield';
         } else if (user.rol === 'DOCENTE') {
-          portalUrl = 'portal-docente.html';
+          portalUrl = '/';
           rolLabel = 'Docente';
           iconClass = 'fa fa-briefcase';
         }
@@ -310,8 +310,8 @@ export class AuthService {
         `;
       } else {
         container.innerHTML = `
-          <a class="btn_one" href="login.html"><i class="fa fa-sign-in me-1"></i> Ingresar</a>
-          <a class="btn_two" href="registro.html"><i class="fa fa-user-plus me-1"></i> Registrarse</a>
+          <a class="btn_one" href="/login"><i class="fa fa-sign-in me-1"></i> Ingresar</a>
+          <a class="btn_two" href="/registro"><i class="fa fa-user-plus me-1"></i> Registrarse</a>
         `;
       }
     }
@@ -323,16 +323,16 @@ export class AuthService {
       if (!user) {
         if (isHomePage) {
           mainMenu.innerHTML = `
-            <li><a class="nav-link active" href="index.html"><i class="fa fa-home me-1"></i> Inicio</a></li>
-            <li><a class="nav-link" href="cursos.html"><i class="fa fa-book me-1"></i> Cursos</a></li>
-            <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-            <li><a class="nav-link" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
+            <li><a class="nav-link active" href="/"><i class="fa fa-home me-1"></i> Inicio</a></li>
+            <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
+            <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+            <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
           `;
         } else {
           mainMenu.innerHTML = `
-            <li><a class="nav-link" href="cursos.html"><i class="fa fa-book me-1"></i> Cursos</a></li>
-            <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-            <li><a class="nav-link" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
+            <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
+            <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+            <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
           `;
         }
       } else if (user.rol === 'ADMIN') {
@@ -341,14 +341,14 @@ export class AuthService {
             <li><a class="nav-link active" id="nav-admin-cursos" href="javascript:void(0)" onclick="if(window.switchAdminTab)window.switchAdminTab('cursos')"><i class="fa fa-book me-1"></i> Cursos</a></li>
             <li><a class="nav-link" id="nav-admin-pedidos" href="javascript:void(0)" onclick="if(window.switchAdminTab)window.switchAdminTab('pedidos')"><i class="fa fa-shopping-cart me-1"></i> Matrículas</a></li>
             <li><a class="nav-link" id="nav-admin-usuarios" href="javascript:void(0)" onclick="if(window.switchAdminTab)window.switchAdminTab('usuarios')"><i class="fa fa-users me-1"></i> Usuarios</a></li>
-            <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+            <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
           `;
         } else {
           mainMenu.innerHTML = `
-            <li><a class="nav-link" href="cursos.html"><i class="fa fa-book me-1"></i> Cursos</a></li>
-            <li><a class="nav-link" href="portal-admin.html"><i class="fa fa-shield me-1"></i> Panel Admin</a></li>
-            <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-            <li><a class="nav-link" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
+            <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
+            <li><a class="nav-link" href="/portal-admin"><i class="fa fa-shield me-1"></i> Panel Admin</a></li>
+            <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+            <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
           `;
         }
       } else if (user.rol === 'DOCENTE') {
@@ -356,22 +356,22 @@ export class AuthService {
           mainMenu.innerHTML = `
             <li><a class="nav-link active" id="nav-docente-cursos" href="javascript:void(0)" onclick="if(window.switchDocenteTab)window.switchDocenteTab('cursos')"><i class="fa fa-book me-1"></i> Mis Cursos</a></li>
             <li><a class="nav-link" id="nav-docente-alumnos" href="javascript:void(0)" onclick="if(window.switchDocenteTab)window.switchDocenteTab('alumnos')"><i class="fa fa-users me-1"></i> Alumnos</a></li>
-            <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+            <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
           `;
         } else {
           mainMenu.innerHTML = `
-            <li><a class="nav-link" href="cursos.html"><i class="fa fa-book me-1"></i> Cursos</a></li>
-            <li><a class="nav-link" href="portal-docente.html"><i class="fa fa-briefcase me-1"></i> Portal Docente</a></li>
-            <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-            <li><a class="nav-link" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
+            <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
+            <li><a class="nav-link" href="/portal-docente"><i class="fa fa-briefcase me-1"></i> Portal Docente</a></li>
+            <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+            <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
           `;
         }
       } else {
         mainMenu.innerHTML = `
-          <li><a class="nav-link" href="cursos.html"><i class="fa fa-book me-1"></i> Cursos</a></li>
-          <li><a class="nav-link" href="mis-cursos.html"><i class="fa fa-graduation-cap me-1"></i> Mis Clases</a></li>
-          <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-          <li><a class="nav-link" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
+          <li><a class="nav-link" href="/cursos"><i class="fa fa-book me-1"></i> Cursos</a></li>
+          <li><a class="nav-link" href="/mis-cursos"><i class="fa fa-graduation-cap me-1"></i> Mis Clases</a></li>
+          <li><a class="nav-link" href="/contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+          <li><a class="nav-link" href="/carrito"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
         `;
       }
     }
@@ -381,44 +381,44 @@ export class AuthService {
       footerMenu.className = 'list-unstyled footer-nav-list mb-0';
       if (user && user.rol === 'ADMIN') {
         footerMenu.innerHTML = `
-          <li><a href="portal-admin.html#cursos">Gestión Cursos</a></li>
-          <li><a href="portal-admin.html#pedidos">Matrículas</a></li>
-          <li><a href="portal-admin.html#usuarios">Usuarios</a></li>
-          <li><a href="contacto.html">Contacto</a></li>
+          <li><a href="/portal-admin#cursos">Gestión Cursos</a></li>
+          <li><a href="/portal-admin#pedidos">Matrículas</a></li>
+          <li><a href="/portal-admin#usuarios">Usuarios</a></li>
+          <li><a href="/contacto">Contacto</a></li>
         `;
       } else if (user && user.rol === 'DOCENTE') {
         footerMenu.innerHTML = `
-          <li><a href="portal-docente.html#cursos">Mis Cursos</a></li>
-          <li><a href="portal-docente.html#alumnos">Alumnos</a></li>
-          <li><a href="carrito.html">Mi Carrito</a></li>
-          <li><a href="contacto.html">Contacto</a></li>
+          <li><a href="/portal-docente#cursos">Mis Cursos</a></li>
+          <li><a href="/portal-docente#alumnos">Alumnos</a></li>
+          <li><a href="/carrito">Mi Carrito</a></li>
+          <li><a href="/contacto">Contacto</a></li>
         `;
       } else if (user && user.rol === 'ESTUDIANTE') {
         footerMenu.innerHTML = `
-          <li><a href="cursos.html">Cursos</a></li>
-          <li><a href="mis-cursos.html">Mis Clases</a></li>
-          <li><a href="carrito.html">Mi Carrito</a></li>
-          <li><a href="contacto.html">Contacto</a></li>
+          <li><a href="/cursos">Cursos</a></li>
+          <li><a href="/mis-cursos">Mis Clases</a></li>
+          <li><a href="/carrito">Mi Carrito</a></li>
+          <li><a href="/contacto">Contacto</a></li>
         `;
       } else if (isHomePage) {
         footerMenu.innerHTML = `
-          <li><a href="index.html">Inicio</a></li>
-          <li><a href="cursos.html">Cursos</a></li>
-          <li><a href="carrito.html">Mi Carrito</a></li>
-          <li><a href="login.html">Ingresar</a></li>
-          <li><a href="contacto.html">Contacto</a></li>
+          <li><a href="/">Inicio</a></li>
+          <li><a href="/cursos">Cursos</a></li>
+          <li><a href="/carrito">Mi Carrito</a></li>
+          <li><a href="/login">Ingresar</a></li>
+          <li><a href="/contacto">Contacto</a></li>
         `;
       } else {
         footerMenu.innerHTML = `
-          <li><a href="cursos.html">Cursos</a></li>
-          <li><a href="carrito.html">Mi Carrito</a></li>
-          <li><a href="login.html">Ingresar</a></li>
-          <li><a href="contacto.html">Contacto</a></li>
+          <li><a href="/cursos">Cursos</a></li>
+          <li><a href="/carrito">Mi Carrito</a></li>
+          <li><a href="/login">Ingresar</a></li>
+          <li><a href="/contacto">Contacto</a></li>
         `;
       }
     }
 
-    document.querySelectorAll('.single_footer ul li a[href="index.html"]').forEach((a: any) => {
+    document.querySelectorAll('.single_footer ul li a[href="/"]').forEach((a: any) => {
       const li = a.parentElement;
       if (li) {
         li.style.display = (!user && isHomePage) ? '' : 'none';
@@ -427,7 +427,7 @@ export class AuthService {
 
     if (typeof window !== 'undefined') {
       const pathname = (window.location.pathname || '').toLowerCase();
-      const current = pathname.split('/').pop() || 'index.html';
+      const current = pathname.split('/').pop() || '';
       const cleanCurrent = current.replace(/\.html$/, '') || 'index';
       const currentHash = (window.location.hash || '').toLowerCase();
 
@@ -437,7 +437,7 @@ export class AuthService {
 
         const hasHashContacto = rawHref.includes('#contacto');
         const href = rawHref.split('#')[0].split('?')[0].toLowerCase();
-        const cleanHref = (href.split('/').pop() || '').replace(/\.html$/, '');
+        const cleanHref = (href.split('/').pop() || '').replace(/\.html$/, '') || 'index';
 
         let isActive = false;
         if (hasHashContacto) {
@@ -508,10 +508,10 @@ export class AuthService {
             } else {
               mobileUl.append(`
                 <li style="border-top: 1px solid rgba(0,0,0,0.08); margin-top: 6px;">
-                  <a href="login.html" style="color: #2eca7f !important; font-weight: 700;"><i class="fa fa-sign-in me-2"></i> Ingresar</a>
+                  <a href="/login" style="color: #2eca7f !important; font-weight: 700;"><i class="fa fa-sign-in me-2"></i> Ingresar</a>
                 </li>
                 <li>
-                  <a href="registro.html" style="color: #1a2d62 !important; font-weight: 700;"><i class="fa fa-user-plus me-2"></i> Registrarse</a>
+                  <a href="/registro" style="color: #1a2d62 !important; font-weight: 700;"><i class="fa fa-user-plus me-2"></i> Registrarse</a>
                 </li>
               `);
             }
@@ -523,3 +523,5 @@ export class AuthService {
     }
   }
 }
+
+

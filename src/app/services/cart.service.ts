@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { APP_CONFIG } from './config.data';
 
 export interface CartItem {
@@ -163,7 +163,7 @@ export class CartService {
       }
     });
 
-    document.querySelectorAll('nav a[href="carrito.html"], #main-menu a[href="carrito.html"], #mobile_menu a[href="carrito.html"]').forEach((a: any) => {
+    document.querySelectorAll('nav a[href="/carrito"], #main-menu a[href="/carrito"], #mobile_menu a[href="/carrito"]').forEach((a: any) => {
       let badge = a.querySelector('.cart-menu-pill');
       if (count > 0) {
         if (!badge) {
@@ -228,3 +228,4 @@ export class CartService {
     localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.RESERVATION_EXPIRY);
   }
 }
+

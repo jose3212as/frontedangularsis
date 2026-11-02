@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { APP_CONFIG } from '../../services/config.data';
@@ -80,12 +80,12 @@ export class EstudiantePanelComponent implements AfterViewInit {
     const userCheck = this.authService.getCurrentUser();
     if (userCheck && userCheck.rol === 'ADMIN') {
       this.notifications.showToast('Redirigiendo a tu Portal Administrador...', 'info');
-      this.router.navigateByUrl('/portal-admin.html');
+      this.router.navigateByUrl('/');
       return;
     }
     if (userCheck && userCheck.rol === 'DOCENTE') {
       this.notifications.showToast('Redirigiendo a tu Portal Docente...', 'info');
-      this.router.navigateByUrl('/portal-docente.html');
+      this.router.navigateByUrl('/');
       return;
     }
 
@@ -124,10 +124,10 @@ export class EstudiantePanelComponent implements AfterViewInit {
               Inicia sesión con tu cuenta de alumno para entrar a tus salas virtuales de Zoom/Meet, consultar tus horarios y revisar tus aulas asignadas.
             </p>
             <div class="d-flex justify-content-center gap-2 flex-wrap mb-3">
-              <a href="login.html?redirect=mis-cursos.html" class="btn_one" style="padding: 12px 28px; font-size: 14.5px; font-weight: 800; border-radius: 8px; text-decoration: none;">
+              <a href="/login?redirect=mis-cursos.html" class="btn_one" style="padding: 12px 28px; font-size: 14.5px; font-weight: 800; border-radius: 8px; text-decoration: none;">
                 <i class="fa fa-sign-in me-1"></i> Iniciar Sesión
               </a>
-              <a href="registro.html?redirect=mis-cursos.html" class="btn_two" style="padding: 12px 24px; font-size: 14px; font-weight: 700; border-radius: 8px; text-decoration: none; background: #f8fafc; border: 1px solid #d7dee8; color: #1a2d62;">
+              <a href="/registro?redirect=mis-cursos.html" class="btn_two" style="padding: 12px 24px; font-size: 14px; font-weight: 700; border-radius: 8px; text-decoration: none; background: #f8fafc; border: 1px solid #d7dee8; color: #1a2d62;">
                 <i class="fa fa-user-plus me-1"></i> Crear Cuenta
               </a>
             </div>
@@ -190,7 +190,7 @@ export class EstudiantePanelComponent implements AfterViewInit {
             <i class="ti-book text-muted" style="font-size: 54px; color: #94a3b8;"></i>
             <h3 class="mt-3" style="color: #0f172a; font-weight: 800; font-size: 22px;">Aún no tienes cursos matriculados</h3>
             <p class="text-muted mb-4" style="font-size: 14px;">Inscríbete en un curso de nuestro catálogo para acceder a tus salas en vivo y comprobantes:</p>
-            <a href="cursos.html" class="btn_one" style="border-radius: 8px; padding: 10px 24px; text-decoration: none;">
+            <a href="/cursos" class="btn_one" style="border-radius: 8px; padding: 10px 24px; text-decoration: none;">
               <i class="fa fa-graduation-cap me-1"></i> Ver Catálogo de Cursos
             </a>
           </div>
@@ -224,7 +224,7 @@ export class EstudiantePanelComponent implements AfterViewInit {
             </div>
           </div>
           <div class="d-flex gap-2 flex-wrap">
-            <a href="cursos.html" class="btn_one" style="font-size: 13px; font-weight: 700; padding: 10px 18px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            <a href="/cursos" class="btn_one" style="font-size: 13px; font-weight: 700; padding: 10px 18px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
               <i class="fa fa-plus"></i> Matricular otro curso
             </a>
             <button type="button" onclick="window.cerrarSesionMisCursos()" style="border: 1px solid #cbd5e1; background: #ffffff; border-radius: 8px; padding: 10px 16px; font-size: 13px; font-weight: 700; color: #475569; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
@@ -311,7 +311,7 @@ export class EstudiantePanelComponent implements AfterViewInit {
                   </span>
                 </div>
                 <h3 class="course-title-fixed">
-                  <a href="curso-detalle.html?id=${curso.id || ''}" style="color: inherit; text-decoration: none;">${curso.titulo || 'Curso'}</a>
+                  <a href="/curso-detalle?id=${curso.id || ''}" style="color: inherit; text-decoration: none;">${curso.titulo || 'Curso'}</a>
                 </h3>
                 <div style="font-size: 12.5px; color: #475569; margin-bottom: 4px; height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
                   <i class="fa fa-calendar text-primary me-1"></i> ${curso.horario || 'Horario flexible'}
@@ -324,7 +324,7 @@ export class EstudiantePanelComponent implements AfterViewInit {
               ${accessAction}
 
               <div class="card-footer-fixed">
-                <a href="curso-detalle.html?id=${curso.id || ''}" class="c_btn" style="text-decoration: none; font-size: 12px;">
+                <a href="/curso-detalle?id=${curso.id || ''}" class="c_btn" style="text-decoration: none; font-size: 12px;">
                   <i class="fa fa-book me-1"></i> Ver Temario
                 </a>
                 <span style="font-size: 11px; color: #16a34a; font-weight: 700;">
@@ -340,3 +340,5 @@ export class EstudiantePanelComponent implements AfterViewInit {
     container.innerHTML = headerHtml + cardsHtml;
   }
 }
+
+

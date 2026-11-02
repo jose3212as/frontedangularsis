@@ -117,7 +117,7 @@ declare const AuthService: any;
 								<li><a href="cursos.html?modalidad=PRESENCIAL">Clases Presenciales en Sede</a></li>
 								<li><a href="carrito.html">Mercado Pago (Tarjetas & Yape)</a></li>
 								<li><a href="#">Comprobantes de Pago (Boleta / Factura)</a></li>
-								<li><a href="index.html#contacto">Mesa de Ayuda al Estudiante</a></li>
+								<li><a href="contacto.html">Mesa de Ayuda al Estudiante</a></li>
 							</ul>
 						</div>
 					</div><!--- END COL -->
@@ -158,7 +158,7 @@ declare const AuthService: any;
 								<li><a href="index.html">Inicio</a></li>
 								<li><a href="cursos.html">Cursos</a></li>
 								<li><a href="carrito.html">Carrito</a></li>
-								<li><a href="index.html#contacto">Contacto</a></li>
+								<li><a href="contacto.html">Contacto</a></li>
 							</ul>
 						</div>
 					</div><!--- END COL -->

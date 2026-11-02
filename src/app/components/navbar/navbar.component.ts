@@ -30,7 +30,7 @@ declare const CartService: any;
 							<ul>
 								<li><a class="nav-link active" href="index.html"><i class="fa fa-home me-1"></i> Inicio</a></li>
 								<li><a class="nav-link" href="cursos.html"><i class="fa fa-book me-1"></i> Cursos</a></li>
-								<li><a class="nav-link" href="index.html#contacto"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+								<li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
 								<li><a class="nav-link" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
 							</ul>
 						</nav>

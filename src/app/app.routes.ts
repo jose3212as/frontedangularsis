@@ -10,12 +10,15 @@ import { RegistroComponent } from './pages/registro/registro.component';
 import { EstudiantePanelComponent } from './pages/estudiante-panel/estudiante-panel.component';
 import { DocentePanelComponent } from './pages/docente-panel/docente-panel.component';
 import { AdminPanelComponent } from './pages/admin-panel/admin-panel.component';
+import { ContactoComponent } from './pages/contacto/contacto.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'index.html', component: HomeComponent },
   { path: 'cursos', component: CatalogoComponent },
   { path: 'cursos.html', component: CatalogoComponent },
+  { path: 'contacto', component: ContactoComponent },
+  { path: 'contacto.html', component: ContactoComponent },
   { path: 'curso-detalle', component: CursoDetalleComponent },
   { path: 'curso-detalle.html', component: CursoDetalleComponent },
   { path: 'curso/:id', component: CursoDetalleComponent },

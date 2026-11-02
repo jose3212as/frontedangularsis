@@ -1,4 +1,74 @@
-﻿/* ==========================================================================
+/* ==========================================================================
+   AJUSTE DE ANCHO GLOBAL DEL SISTEMA (-10%)
+   Reduce el ancho de todos los contenedores y secciones del sistema en un 10%
+   ========================================================================== */
+
+.container,
+.container-lg,
+.container-md,
+.container-sm,
+.container-xl,
+.container-xxl {
+  width: 90% !important;
+  max-width: 1180px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+@media (min-width: 1400px) {
+  .container,
+  .container-lg,
+  .container-md,
+  .container-sm,
+  .container-xl,
+  .container-xxl {
+    max-width: 1180px !important; /* -10% sobre los 1320px estandar */
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+  .container,
+  .container-lg,
+  .container-md,
+  .container-sm,
+  .container-xl,
+  .container-xxl {
+    max-width: 1020px !important; /* -10% sobre los 1140px estandar */
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .container,
+  .container-lg,
+  .container-md,
+  .container-sm,
+  .container-xl,
+  .container-xxl {
+    max-width: 860px !important; /* -10% sobre los 960px estandar */
+  }
+}
+
+/* Navbar y Footers alineados simetricamente con el nuevo ancho global */
+#navigation .container,
+.site-navigation .container,
+.portal-footer .container-fluid,
+.portal-header .container-fluid {
+  width: 90% !important;
+  max-width: 1180px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+  #navigation .container,
+  .site-navigation .container,
+  .portal-footer .container-fluid,
+  .portal-header .container-fluid {
+    max-width: 1020px !important;
+  }
+}
+
+/* ==========================================================================
    ESTILOS GLOBALES NATIVOS DE ANGULAR (src/styles.css)
    Escala global del sistema al 80% (zoom: 0.8)
    ========================================================================== */

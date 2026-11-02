@@ -16,8 +16,7 @@ declare const window: any;
 				<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
 					<h1>Portal del Estudiante</h1>
 					<ul>
-						<li><a href="index.html">Inicio</a></li>
-						<li> / Mis Cursos y Accesos</li>
+						<li>Mis Cursos y Accesos</li>
 					</ul>
 				</div>
 			</div>

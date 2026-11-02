@@ -33,7 +33,6 @@ declare const AuthService: any;
 					</div>
 					<div class="col-md-3 col-12 text-md-end text-center">
 						<div class="d-inline-flex align-items-center gap-3 small">
-							<a href="index.html" class="portal-footer-link" title="Ver Tienda Pública"><i class="fa fa-external-link me-1"></i> Sitio Web</a>
 							<a href="javascript:void(0)" onclick="if(window.AuthService)AuthService.logout()" class="portal-footer-link text-danger"><i class="fa fa-sign-out me-1"></i> Salir</a>
 						</div>
 					</div>
@@ -63,7 +62,6 @@ declare const AuthService: any;
 					</div>
 					<div class="col-md-3 col-12 text-md-end text-center">
 						<div class="d-inline-flex align-items-center gap-3 small">
-							<a href="index.html" class="portal-footer-link" title="Ver Tienda Pública"><i class="fa fa-external-link me-1"></i> Sitio Web</a>
 							<a href="javascript:void(0)" onclick="if(window.AuthService)AuthService.logout()" class="portal-footer-link text-danger"><i class="fa fa-sign-out me-1"></i> Salir</a>
 						</div>
 					</div>

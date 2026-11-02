@@ -16,8 +16,7 @@ declare const window: any;
 				<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s" data-wow-offset="0">
 					<h1>Carrito de Inscripción</h1>
 					<ul>
-						<li><a href="index.html">Inicio</a></li>
-						<li> / Carrito de Matrícula</li>
+						<li>Carrito de Matrícula</li>
 					</ul>
 				</div>
 			</div>

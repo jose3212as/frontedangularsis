@@ -19,8 +19,7 @@ declare const CartService: any;
 				<div class="section-top-title">
 					<h1>{{ bannerTitle }}</h1>
 					<ul>
-						<li><a href="index.html">Inicio</a></li>
-						<li> / {{ bannerSubtitle }}</li>
+						<li>{{ bannerSubtitle }}</li>
 					</ul>
 				</div>
 			</div>
@@ -91,7 +90,7 @@ declare const CartService: any;
 						</div>
 						<div class="mt-4">
 							<a class="btn_one me-2 mb-2" href="cursos.html"><i class="fa fa-book me-1"></i> Ir al Catálogo de Cursos Disponibles</a>
-							<a class="btn_two mb-2" href="index.html">Volver al Inicio</a>
+							<a class="btn_two mb-2" href="contacto.html">Contacto y Soporte</a>
 						</div>
 					</div>								  
 				</div>

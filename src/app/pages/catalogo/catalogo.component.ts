@@ -18,8 +18,7 @@ declare const window: any;
 				<div class="section-top-title">
 					<h1>Catálogo de Cursos</h1>
 					<ul>
-						<li><a href="index.html">Inicio</a></li>
-						<li> / Cursos Especializados</li>
+						<li>Cursos Especializados</li>
 					</ul>
 				</div>
 			</div>

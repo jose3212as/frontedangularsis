@@ -16,8 +16,7 @@ declare const window: any;
 				<div class="section-top-title">
 					<h1>Finalizar Matrícula</h1>
 					<ul>
-						<li><a href="index.html">Inicio</a></li>
-						<li> / Pago de Matrícula</li>
+						<li>Pago de Matrícula</li>
 					</ul>
 				</div>
 			</div>

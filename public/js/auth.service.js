@@ -522,104 +522,117 @@ const AuthService = {
       }
     }
 
-    // 4. Menú de Navegación Contextual (#main-menu ul) - Mismo diseño visual unificado, contenido adaptado por rol con Contacto
+    // 4. Menú de Navegación Contextual (#main-menu ul) - 'Inicio' solo en la página de inicio y fuera de la plataforma
+    const cleanCurrentNav = (currentPath.replace(/\.html$/, '') || 'index').toLowerCase();
+    const isHomePage = cleanCurrentNav === 'index' || cleanCurrentNav === '';
     const mainMenu = document.querySelector('#main-menu ul');
     if (mainMenu) {
       if (!user) {
-        // Invitado / Público general: Inicio, Cursos, Contacto, Mi Carrito
-        mainMenu.innerHTML = `
-          <li><a class="nav-link" href="index.html"><i class="fa fa-home me-1"></i> Inicio</a></li>
-          <li><a class="nav-link" href="cursos.html"><i class="fa fa-book me-1"></i> Cursos</a></li>
-          <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-          <li><a class="nav-link" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
-        `;
+        if (isHomePage) {
+          mainMenu.innerHTML = 
+            <li><a class="nav-link active" href="index.html"><i class="fa fa-home me-1"></i> Inicio</a></li>
+            <li><a class="nav-link" href="cursos.html"><i class="fa fa-book me-1"></i> Cursos</a></li>
+            <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+            <li><a class="nav-link" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
+          ;
+        } else {
+          mainMenu.innerHTML = 
+            <li><a class="nav-link" href="cursos.html"><i class="fa fa-book me-1"></i> Cursos</a></li>
+            <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
+            <li><a class="nav-link" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
+          ;
+        }
       } else if (user.rol === 'ADMIN') {
-        // Administrador: En su portal sus herramientas + Contacto
         if (isPortalAdmin) {
-          mainMenu.innerHTML = `
+          mainMenu.innerHTML = 
             <li><a class="nav-link active" id="nav-admin-cursos" href="javascript:void(0)" onclick="if(window.switchAdminTab)switchAdminTab('cursos')"><i class="fa fa-book me-1"></i> Cursos</a></li>
             <li><a class="nav-link" id="nav-admin-pedidos" href="javascript:void(0)" onclick="if(window.switchAdminTab)switchAdminTab('pedidos')"><i class="fa fa-shopping-cart me-1"></i> Matrículas</a></li>
             <li><a class="nav-link" id="nav-admin-usuarios" href="javascript:void(0)" onclick="if(window.switchAdminTab)switchAdminTab('usuarios')"><i class="fa fa-users me-1"></i> Usuarios</a></li>
             <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-          `;
+          ;
         } else {
-          // Administrador en catálogo/inicio/carrito
-          mainMenu.innerHTML = `
-            <li><a class="nav-link" href="index.html"><i class="fa fa-home me-1"></i> Inicio</a></li>
+          mainMenu.innerHTML = 
             <li><a class="nav-link" href="cursos.html"><i class="fa fa-book me-1"></i> Cursos</a></li>
             <li><a class="nav-link" href="portal-admin.html"><i class="fa fa-shield me-1"></i> Panel Admin</a></li>
             <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
             <li><a class="nav-link" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
-          `;
+          ;
         }
       } else if (user.rol === 'DOCENTE') {
-        // Docente: En su portal sus herramientas + Contacto
         if (isPortalDocente) {
-          mainMenu.innerHTML = `
+          mainMenu.innerHTML = 
             <li><a class="nav-link active" id="nav-docente-cursos" href="javascript:void(0)" onclick="if(window.switchDocenteTab)switchDocenteTab('cursos')"><i class="fa fa-book me-1"></i> Mis Cursos</a></li>
             <li><a class="nav-link" id="nav-docente-alumnos" href="javascript:void(0)" onclick="if(window.switchDocenteTab)switchDocenteTab('alumnos')"><i class="fa fa-users me-1"></i> Alumnos</a></li>
             <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
-          `;
+          ;
         } else {
-          // Docente en catálogo/inicio/carrito
-          mainMenu.innerHTML = `
-            <li><a class="nav-link" href="index.html"><i class="fa fa-home me-1"></i> Inicio</a></li>
+          mainMenu.innerHTML = 
             <li><a class="nav-link" href="cursos.html"><i class="fa fa-book me-1"></i> Cursos</a></li>
             <li><a class="nav-link" href="portal-docente.html"><i class="fa fa-briefcase me-1"></i> Portal Docente</a></li>
             <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
             <li><a class="nav-link" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
-          `;
+          ;
         }
       } else {
-        // Alumno / Estudiante: Inicio, Cursos, Mis Clases, Contacto, Mi Carrito
-        mainMenu.innerHTML = `
-          <li><a class="nav-link" href="index.html"><i class="fa fa-home me-1"></i> Inicio</a></li>
+        mainMenu.innerHTML = 
           <li><a class="nav-link" href="cursos.html"><i class="fa fa-book me-1"></i> Cursos</a></li>
           <li><a class="nav-link" href="mis-cursos.html"><i class="fa fa-graduation-cap me-1"></i> Mis Clases</a></li>
           <li><a class="nav-link" href="contacto.html"><i class="fa fa-envelope me-1"></i> Contacto</a></li>
           <li><a class="nav-link" href="carrito.html"><i class="fa fa-shopping-cart me-1"></i> Mi Carrito</a></li>
-        `;
+        ;
       }
     }
 
-    // 5. Menú de pie de página (Footer) adaptado al rol del usuario (Diseño EduMim)
+    // 5. Menú de pie de página (Footer) adaptado (sin 'Inicio' dentro de la plataforma)
     const footerMenu = document.querySelector('.footer_menu ul');
     if (footerMenu) {
       footerMenu.className = 'list-unstyled footer-nav-list mb-0';
       if (user && user.rol === 'ADMIN') {
-        footerMenu.innerHTML = `
-          <li><a href="index.html">Inicio</a></li>
+        footerMenu.innerHTML = 
           <li><a href="portal-admin.html#cursos">Gestión Cursos</a></li>
           <li><a href="portal-admin.html#pedidos">Matrículas</a></li>
           <li><a href="portal-admin.html#usuarios">Usuarios</a></li>
           <li><a href="contacto.html">Contacto</a></li>
-        `;
+        ;
       } else if (user && user.rol === 'DOCENTE') {
-        footerMenu.innerHTML = `
-          <li><a href="index.html">Inicio</a></li>
+        footerMenu.innerHTML = 
           <li><a href="portal-docente.html#cursos">Mis Cursos</a></li>
           <li><a href="portal-docente.html#alumnos">Alumnos</a></li>
           <li><a href="carrito.html">Mi Carrito</a></li>
           <li><a href="contacto.html">Contacto</a></li>
-        `;
+        ;
       } else if (user && user.rol === 'ESTUDIANTE') {
-        footerMenu.innerHTML = `
-          <li><a href="index.html">Inicio</a></li>
+        footerMenu.innerHTML = 
           <li><a href="cursos.html">Cursos</a></li>
           <li><a href="mis-cursos.html">Mis Clases</a></li>
           <li><a href="carrito.html">Mi Carrito</a></li>
           <li><a href="contacto.html">Contacto</a></li>
-        `;
-      } else {
-        footerMenu.innerHTML = `
+        ;
+      } else if (isHomePage) {
+        footerMenu.innerHTML = 
           <li><a href="index.html">Inicio</a></li>
           <li><a href="cursos.html">Cursos</a></li>
           <li><a href="carrito.html">Mi Carrito</a></li>
           <li><a href="login.html">Ingresar</a></li>
           <li><a href="contacto.html">Contacto</a></li>
-        `;
+        ;
+      } else {
+        footerMenu.innerHTML = 
+          <li><a href="cursos.html">Cursos</a></li>
+          <li><a href="carrito.html">Mi Carrito</a></li>
+          <li><a href="login.html">Ingresar</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+        ;
       }
     }
+
+    // Ocultar 'Inicio' en la columna de Enlaces Rápidos del footer cuando no estamos en Inicio o hay sesión iniciada
+    document.querySelectorAll('.single_footer ul li a[href="index.html"]').forEach(a => {
+      const li = a.parentElement;
+      if (li) {
+        li.style.display = (!user && isHomePage) ? '' : 'none';
+      }
+    });
 
     // 6. Resaltar página activa con precisión (incluye Contacto con deep-linking hash)
     if (typeof window !== 'undefined') {

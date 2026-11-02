@@ -18,8 +18,7 @@ declare const Notifications: any;
 				<div class="section-top-title">
 					<h1>Contacto y Soporte</h1>
 					<ul>
-						<li><a href="index.html">Inicio</a></li>
-						<li> / Contáctanos</li>
+						<li>Contáctanos</li>
 					</ul>
 				</div>
 			</div>

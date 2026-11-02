@@ -1,290 +1,304 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterViewInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { CursoService } from '../../services/curso.service';
-import { PedidoService } from '../../services/pedido.service';
-import { CrearCursoRequest, Curso } from '../../models/curso.model';
-import { Pedido } from '../../models/pedido.model';
+
+declare const window: any;
 
 @Component({
   selector: 'app-admin-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
+  encapsulation: ViewEncapsulation.None,
   template: `
-    <div class="flex-1 py-8">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <!-- Header & Microservices Health Status -->
-        <div class="pb-6 border-b border-slate-200 mb-8">
-          <nav class="flex items-center gap-2 text-xs text-slate-500 mb-1">
-            <span>Administración General</span>
-            <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            <span class="text-slate-800 font-medium">Consola Central</span>
-          </nav>
+	<!-- START SECTION TOP  -->
+	<section class="section-top">
+		<div class="container">
+			<div class="col-lg-10 offset-lg-1 text-center">
+				<div class="section-top-title">
+					<h1><i class="fa fa-shield me-2 text-warning"></i>Portal del Administrador</h1>
+					<ul>
+						<li><a href="index.html">Inicio</a></li>
+						<li> / Control Central y Catálogo de Microservicios</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</section>	
+	<!-- END SECTION TOP -->
 
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 class="font-heading font-extrabold text-2xl text-slate-900">
-                Consola de Administración - Cursos y Finanzas
-              </h1>
-              <p class="text-xs text-slate-500">
-                Supervisa el rendimiento académico, gestiona aforos y registra nuevos cursos en la plataforma.
-              </p>
-            </div>
+	<!-- CONTENIDO DEL PORTAL ADMIN -->
+	<div class="section-padding" style="background: #f8fafc; min-height: 70vh;">
+		<div class="container">
+			
+			<!-- HEADER MÉTRICAS DE LA PLATAFORMA (MINIMALISTA ABIERTO) -->
+			<div class="row g-4 py-3 mb-4 border-bottom" id="metricas-resumen" style="border-color: #e2e8f0 !important;">
+				<div class="col-xl-3 col-sm-6 col-12">
+					<div class="pe-3">
+						<span class="text-muted text-uppercase" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">Cursos Creados</span>
+						<div class="d-flex align-items-baseline gap-2 mt-1">
+							<span id="admin-metric-cursos" style="font-size: 26px; font-weight: 800; color: #0f172a; line-height: 1;">-</span>
+							<span class="badge bg-light text-muted fw-normal" style="font-size: 11px;">en catálogo</span>
+						</div>
+					</div>
+				</div>
 
-            <!-- Health Pill -->
-            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-center shadow-2xs">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Microservicios: Gateway • Auth • Cursos • Pedidos • Comprobantes (OK)
-            </span>
-          </div>
-        </div>
+				<div class="col-xl-3 col-sm-6 col-12">
+					<div class="pe-3">
+						<span class="text-muted text-uppercase" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">Matrículas Pagadas</span>
+						<div class="d-flex align-items-baseline gap-2 mt-1">
+							<span id="admin-metric-matriculas" style="font-size: 26px; font-weight: 800; color: #16a34a; line-height: 1;">-</span>
+							<span class="badge bg-success bg-opacity-10 text-success fw-semibold" style="font-size: 11px;">confirmadas</span>
+						</div>
+					</div>
+				</div>
 
-        <!-- 4 KPI Metrics -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8">
-          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs">
-            <span class="text-xs font-semibold text-slate-500 block mb-1">Recaudación Total</span>
-            <div class="font-heading font-extrabold text-2xl text-brand-950">
-              S/ {{ totalRecaudado | number:'1.2-2' }}
-            </div>
-            <span class="text-[11px] text-emerald-600 font-bold mt-1 block">
-              <i class="fa-solid fa-arrow-trend-up"></i> +18.4% este mes
-            </span>
-          </div>
+				<div class="col-xl-3 col-sm-6 col-12">
+					<div class="pe-3">
+						<span class="text-muted text-uppercase" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">Recaudación Oficial</span>
+						<div class="d-flex align-items-baseline gap-2 mt-1">
+							<span id="admin-metric-ingresos" style="font-size: 26px; font-weight: 800; color: #0f172a; line-height: 1;">S/ 0.00</span>
+							<span class="badge bg-light text-muted fw-normal" style="font-size: 11px;">PEN</span>
+						</div>
+					</div>
+				</div>
 
-          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs">
-            <span class="text-xs font-semibold text-slate-500 block mb-1">Matrículas Confirmadas</span>
-            <div class="font-heading font-extrabold text-2xl text-slate-900">
-              {{ pedidos.length }} alumnos
-            </div>
-            <span class="text-[11px] text-slate-400 mt-1 block">Pagos vía Mercado Pago</span>
-          </div>
+				<div class="col-xl-3 col-sm-6 col-12">
+					<div>
+						<span class="text-muted text-uppercase" style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">Usuarios del Sistema</span>
+						<div class="d-flex align-items-baseline gap-2 mt-1">
+							<span id="admin-metric-usuarios" style="font-size: 26px; font-weight: 800; color: #0f172a; line-height: 1;">-</span>
+							<span class="badge bg-light text-muted fw-normal" style="font-size: 11px;">cuentas</span>
+						</div>
+					</div>
+				</div>
+			</div>
 
-          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs">
-            <span class="text-xs font-semibold text-slate-500 block mb-1">Cursos en Catálogo</span>
-            <div class="font-heading font-extrabold text-2xl text-slate-900">
-              {{ cursos.length }} cursos
-            </div>
-            <span class="text-[11px] text-blue-600 font-bold mt-1 block">Aforo promedio: 90%</span>
-          </div>
+			<!-- PESTAÑAS DE CONTROL ADMINISTRATIVO (CON HASH Y DEEP LINKING) -->
+			<div class="row mb-4">
+				<div class="col-12">
+					<div class="platform-tabs-wrapper">
+						<div class="platform-tabs-nav" role="tablist">
+							<button type="button" class="platform-tab-btn active" id="tab-admin-cursos" onclick="switchAdminTab('cursos')" role="tab" aria-selected="true">
+								<i class="fa fa-book me-2"></i>
+								<span>Gestión de Cursos (CRUD)</span>
+								<span class="platform-tab-badge" id="tab-badge-cursos">-</span>
+							</button>
+							<button type="button" class="platform-tab-btn" id="tab-admin-pedidos" onclick="switchAdminTab('pedidos')" role="tab" aria-selected="false">
+								<i class="fa fa-shopping-cart me-2"></i>
+								<span>Matrículas y Pagos</span>
+								<span class="platform-tab-badge" id="tab-badge-pedidos">-</span>
+							</button>
+							<button type="button" class="platform-tab-btn" id="tab-admin-usuarios" onclick="switchAdminTab('usuarios')" role="tab" aria-selected="false">
+								<i class="fa fa-users me-2"></i>
+								<span>Directorio de Usuarios</span>
+								<span class="platform-tab-badge" id="tab-badge-usuarios">-</span>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
 
-          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs">
-            <span class="text-xs font-semibold text-slate-500 block mb-1">Usuarios Registrados</span>
-            <div class="font-heading font-extrabold text-2xl text-slate-900">
-              124
-            </div>
-            <span class="text-[11px] text-slate-400 mt-1 block">Estudiantes & Docentes</span>
-          </div>
-        </div>
+			<!-- PESTAÑA 1: GESTIÓN DE CURSOS -->
+			<div id="seccion-admin-cursos">
+				<div class="clean-surface">
+					<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+						<div>
+							<h4 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 2px;">
+								<i class="fa fa-cubes text-primary me-2"></i>Gestión de Cursos y Aforos
+							</h4>
+							<p class="text-muted" style="font-size: 13.5px; margin: 0;">Control oficial de precios, aforos en tiempo real y estado en el catálogo:</p>
+						</div>
+						<div>
+							<button type="button" class="btn btn-success btn-sm fw-bold px-3 py-2" onclick="abrirModalCrearCurso()">
+								<i class="fa fa-plus-circle me-1"></i> Crear Nuevo Curso
+							</button>
+						</div>
+					</div>
 
-        <!-- Layout: Master Course Inventory + Create Course Form -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          <!-- Master Inventory (7 cols) -->
-          <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-            <div class="p-5 border-b border-slate-200 flex items-center justify-between">
-              <div>
-                <h3 class="font-heading font-bold text-sm text-slate-900">Inventario Maestro de Cursos</h3>
-                <p class="text-xs text-slate-500">Gestión de estados, vacantes y precios</p>
-              </div>
-              <button (click)="cargarDatos()" class="p-2 text-slate-400 hover:text-slate-600 text-xs">
-                <i class="fa-solid fa-arrows-rotate"></i>
-              </button>
-            </div>
+					<div class="table-responsive">
+						<table class="table table-hover align-middle" style="font-size: 13.5px;">
+							<thead style="background: #f8fafc; color: #475569; font-weight: 700;">
+								<tr>
+									<th>Curso</th>
+									<th>Modalidad</th>
+									<th>Precio</th>
+									<th>Aforo en Vivo</th>
+									<th>Estado</th>
+									<th class="text-end">Acciones</th>
+								</tr>
+							</thead>
+							<tbody id="tabla-admin-cursos-body">
+								<tr>
+									<td colspan="6" class="text-center py-4 text-muted">
+										<i class="fa fa-spinner fa-spin me-2"></i>Cargando cursos del sistema...
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
 
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs text-slate-600">
-                <thead class="bg-slate-50 border-b border-slate-200 font-bold text-slate-700 uppercase text-[10px]">
-                  <tr>
-                    <th class="px-5 py-3">Curso</th>
-                    <th class="px-5 py-3">Aforo</th>
-                    <th class="px-5 py-3">Precio</th>
-                    <th class="px-5 py-3">Estado</th>
-                    <th class="px-5 py-3 text-right">Acción</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 font-medium">
-                  @for (c of cursos; track c.id) {
-                    <tr class="hover:bg-slate-50 transition">
-                      <td class="px-5 py-4">
-                        <div class="font-bold text-slate-900">{{ c.titulo }}</div>
-                        <span class="text-[10px] text-brand-700 font-bold uppercase">{{ c.modalidad }}</span>
-                      </td>
-                      <td class="px-5 py-4">
-                        <div class="text-[11px] font-bold text-slate-800">
-                          {{ c.aforoDisponible }} / {{ c.aforoMaximo }}
-                        </div>
-                        <div class="w-16 bg-slate-100 rounded-full h-1 mt-1">
-                          <div 
-                            class="h-1 bg-emerald-500 rounded-full"
-                            [style.width.%]="((c.aforoMaximo - c.aforoDisponible) / c.aforoMaximo) * 100">
-                          </div>
-                        </div>
-                      </td>
-                      <td class="px-5 py-4 font-bold text-slate-900">
-                        S/ {{ c.precio | number:'1.2-2' }}
-                      </td>
-                      <td class="px-5 py-4">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold"
-                          [ngClass]="c.estado === 'PUBLICADO' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
-                          {{ c.estado }}
-                        </span>
-                      </td>
-                      <td class="px-5 py-4 text-right">
-                        <button 
-                          (click)="cambiarEstado(c)" 
-                          class="px-2.5 py-1 text-[11px] border border-slate-200 hover:bg-slate-100 rounded font-semibold text-slate-700">
-                          {{ c.estado === 'PUBLICADO' ? 'Pausar' : 'Publicar' }}
-                        </button>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
+			<!-- PESTAÑA 2: ÓRDENES Y MATRÍCULAS -->
+			<div id="seccion-admin-pedidos" style="display: none;">
+				<div class="clean-surface">
+					<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+						<div>
+							<h4 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 2px;">
+								<i class="fa fa-receipt text-success me-2"></i>Historial Central de Pedidos y Pagos
+							</h4>
+							<p class="text-muted" style="font-size: 13.5px; margin: 0;">Transacciones procesadas a través de Mercado Pago y Comprobantes SUNAT:</p>
+						</div>
+					</div>
 
-          <!-- Quick Create Course Form (5 cols) -->
-          <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-            <h3 class="font-heading font-bold text-base text-slate-900 mb-1 flex items-center gap-2">
-              <i class="fa-solid fa-plus-circle text-brand-600"></i> Registrar Nuevo Curso
-            </h3>
-            <p class="text-xs text-slate-500 mb-4">Mapeado directamente al DTO CrearCursoRequest</p>
+					<div class="table-responsive">
+						<table class="table table-hover align-middle" style="font-size: 13.5px;">
+							<thead style="background: #f8fafc; color: #475569; font-weight: 700;">
+								<tr>
+									<th>Código Orden</th>
+									<th>Alumno / DNI</th>
+									<th>Curso</th>
+									<th>Monto</th>
+									<th>Comprobante</th>
+									<th>Estado</th>
+									<th>Fecha</th>
+								</tr>
+							</thead>
+							<tbody id="tabla-admin-pedidos-body">
+								<tr>
+									<td colspan="7" class="text-center py-4 text-muted">
+										<i class="fa fa-spinner fa-spin me-2"></i>Cargando transacciones...
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
 
-            @if (mensajeExito) {
-              <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 mb-4">
-                {{ mensajeExito }}
-              </div>
-            }
+			<!-- PESTAÑA 3: DIRECTORIO DE USUARIOS -->
+			<div id="seccion-admin-usuarios" style="display: none;">
+				<div class="clean-surface">
+					<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+						<div>
+							<h4 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 2px;">
+								<i class="fa fa-id-card-o text-purple me-2" style="color: #9333ea;"></i>Directorio de Usuarios y Roles
+							</h4>
+							<p class="text-muted" style="font-size: 13.5px; margin: 0;">Cuentas registradas en auth-service (Estudiantes, Docentes y Administradores):</p>
+						</div>
+					</div>
 
-            <form (ngSubmit)="crearCurso()" class="space-y-3.5 text-xs">
-              <div>
-                <label class="block font-semibold text-slate-700 mb-1">Título del Curso</label>
-                <input type="text" [(ngModel)]="nuevoCurso.titulo" name="titulo" required placeholder="Ej. DevOps con Kubernetes y Docker" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white">
-              </div>
+					<div class="table-responsive">
+						<table class="table table-hover align-middle" style="font-size: 13.5px;">
+							<thead style="background: #f8fafc; color: #475569; font-weight: 700;">
+								<tr>
+									<th>DNI</th>
+									<th>Nombres y Apellidos</th>
+									<th>Correo Electrónico</th>
+									<th>WhatsApp</th>
+									<th>Rol</th>
+									<th>Seguridad 2FA</th>
+								</tr>
+							</thead>
+							<tbody id="tabla-admin-usuarios-body">
+								<tr>
+									<td colspan="6" class="text-center py-4 text-muted">
+										<i class="fa fa-spinner fa-spin me-2"></i>Cargando usuarios...
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
 
-              <div>
-                <label class="block font-semibold text-slate-700 mb-1">Descripción Breve</label>
-                <textarea [(ngModel)]="nuevoCurso.descripcion" name="descripcion" rows="2" placeholder="Objetivos y tecnologías..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white"></textarea>
-              </div>
+		</div>
+	</div>
 
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block font-semibold text-slate-700 mb-1">Modalidad</label>
-                  <select [(ngModel)]="nuevoCurso.modalidad" name="modalidad" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white">
-                    <option value="VIRTUAL">VIRTUAL</option>
-                    <option value="PRESENCIAL">PRESENCIAL</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block font-semibold text-slate-700 mb-1">Horario</label>
-                  <input type="text" [(ngModel)]="nuevoCurso.horario" name="horario" placeholder="Mar y Jue 19:00 - 22:00" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white">
-                </div>
-              </div>
+	<!-- MODAL: CREAR NUEVO CURSO -->
+	<div id="modal-crear-curso" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 9999999; align-items: center; justify-content: center; backdrop-filter: blur(4px); overflow-y: auto; padding: 20px 0;">
+		<div style="background: #ffffff; border-radius: 16px; padding: 28px 24px; max-width: 600px; width: 92%; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25); max-height: 90vh; overflow-y: auto;">
+			<div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+				<h4 style="font-weight: 800; color: #0f172a; margin: 0;">
+					<i class="fa fa-plus-circle text-success me-2"></i>Crear Nuevo Curso
+				</h4>
+				<button type="button" class="btn-close" onclick="cerrarModalCrearCurso()"></button>
+			</div>
+			
+			<form id="form-crear-curso" onsubmit="guardarNuevoCurso(event)">
+				<div class="row g-3">
+					<div class="col-12">
+						<label class="form-label fw-bold" style="font-size: 12.5px;">Título del Curso *</label>
+						<input type="text" id="nuevo-curso-titulo" class="form-control form-control-sm" required placeholder="Ej: Microservicios Avanzados con Spring Cloud">
+					</div>
 
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block font-semibold text-slate-700 mb-1">Aforo Máximo</label>
-                  <input type="number" [(ngModel)]="nuevoCurso.aforoMaximo" name="aforo" min="1" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white">
-                </div>
-                <div>
-                  <label class="block font-semibold text-slate-700 mb-1">Precio (S/)</label>
-                  <input type="number" [(ngModel)]="nuevoCurso.precio" name="precio" min="0" step="0.5" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white">
-                </div>
-              </div>
+					<div class="col-12">
+						<label class="form-label fw-bold" style="font-size: 12.5px;">Descripción *</label>
+						<textarea id="nuevo-curso-desc" class="form-control form-control-sm" rows="2" required placeholder="Descripción del temario y competencias..."></textarea>
+					</div>
 
-              <div>
-                <label class="block font-semibold text-slate-700 mb-1">
-                  {{ nuevoCurso.modalidad === 'VIRTUAL' ? 'Enlace Meet / Zoom' : 'Dirección del Campus / Aula' }}
-                </label>
-                <input 
-                  type="text" 
-                  [(ngModel)]="nuevoCurso.enlaceClase" 
-                  name="enlace" 
-                  placeholder="https://meet.google.com/xyz-123" 
-                  class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white">
-              </div>
+					<div class="col-md-6 col-12">
+						<label class="form-label fw-bold" style="font-size: 12.5px;">Modalidad *</label>
+						<select id="nuevo-curso-modalidad" class="form-select form-select-sm" onchange="toggleModalidadFields(this.value)">
+							<option value="VIRTUAL">VIRTUAL (En Vivo)</option>
+							<option value="PRESENCIAL">PRESENCIAL (Sede Física)</option>
+						</select>
+					</div>
 
-              <button 
-                type="submit" 
-                class="w-full py-2.5 bg-brand-900 hover:bg-brand-800 text-white font-bold text-xs rounded-lg shadow-sm transition">
-                <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> Guardar y Publicar Curso
-              </button>
-            </form>
-          </div>
+					<div class="col-md-3 col-6">
+						<label class="form-label fw-bold" style="font-size: 12.5px;">Precio (S/) *</label>
+						<input type="number" id="nuevo-curso-precio" class="form-control form-control-sm" min="1" step="0.5" value="180.00" required>
+					</div>
 
-        </div>
+					<div class="col-md-3 col-6">
+						<label class="form-label fw-bold" style="font-size: 12.5px;">Aforo Máximo *</label>
+						<input type="number" id="nuevo-curso-aforo" class="form-control form-control-sm" min="1" value="25" required>
+					</div>
 
-      </div>
-    </div>
+					<div class="col-md-6 col-12">
+						<label class="form-label fw-bold" style="font-size: 12.5px;">Horario *</label>
+						<input type="text" id="nuevo-curso-horario" class="form-control form-control-sm" placeholder="Ej: Lun y Mie 19:00 - 22:00" required>
+					</div>
+
+					<div class="col-md-6 col-12">
+						<label class="form-label fw-bold" style="font-size: 12.5px;">Docente Asignado *</label>
+						<select id="nuevo-curso-docente" class="form-select form-select-sm">
+							<option value="a0000000-0000-0000-0000-000000000002">Ing. Roberto Docente (Docente Principal)</option>
+						</select>
+					</div>
+
+					<!-- Campos para Virtual -->
+					<div class="col-12" id="field-virtual-box">
+						<label class="form-label fw-bold" style="font-size: 12.5px;">Enlace de Clase (Zoom / Meet)</label>
+						<input type="url" id="nuevo-curso-enlace" class="form-control form-control-sm" placeholder="https://meet.google.com/xyz-abcd-efg">
+					</div>
+
+					<!-- Campos para Presencial -->
+					<div class="col-md-8 col-12 d-none" id="field-presencial-sede">
+						<label class="form-label fw-bold" style="font-size: 12.5px;">Dirección de Sede</label>
+						<input type="text" id="nuevo-curso-sede" class="form-control form-control-sm" placeholder="Av. Universitaria 1234, Lima">
+					</div>
+
+					<div class="col-md-4 col-12 d-none" id="field-presencial-aula">
+						<label class="form-label fw-bold" style="font-size: 12.5px;">Aula / Laboratorio</label>
+						<input type="text" id="nuevo-curso-aula" class="form-control form-control-sm" placeholder="Lab 301">
+					</div>
+				</div>
+
+				<div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+					<button type="button" class="btn btn-outline-secondary btn-sm" onclick="cerrarModalCrearCurso()">Cancelar</button>
+					<button type="submit" class="btn btn-success btn-sm fw-bold px-3" id="btn-submit-crear-curso">
+						<i class="fa fa-check me-1"></i> Publicar Curso
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
   `
 })
-export class AdminPanelComponent implements OnInit {
-  private cursoService = inject(CursoService);
-  private pedidoService = inject(PedidoService);
-  private cdr = inject(ChangeDetectorRef);
-
-  cursos: Curso[] = [];
-  pedidos: Pedido[] = [];
-  totalRecaudado = 0;
-  mensajeExito = '';
-
-  nuevoCurso: CrearCursoRequest = {
-    titulo: '',
-    descripcion: '',
-    docenteId: 'a0000000-0000-0000-0000-000000000002', // Roberto Docente
-    fechaInicio: new Date(Date.now() + 86400000 * 3).toISOString().slice(0, 19),
-    fechaFin: new Date(Date.now() + 86400000 * 33).toISOString().slice(0, 19),
-    horario: 'Mar y Jue 19:00 - 22:00',
-    modalidad: 'VIRTUAL',
-    aforoMaximo: 25,
-    precio: 180,
-    enlaceClase: 'https://meet.google.com/dev-spring-boot'
-  };
-
-  ngOnInit(): void {
-    this.cargarDatos();
-  }
-
-  cargarDatos(): void {
-    this.cursoService.listarTodos().subscribe({
-      next: (data) => {
-        this.cursos = data;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error(err)
-    });
-
-    this.pedidoService.listarTodos().subscribe({
-      next: (data) => {
-        this.pedidos = data;
-        this.totalRecaudado = data.reduce((acc, p) => acc + (p.monto || 0), 0);
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error(err)
-    });
-  }
-
-  cambiarEstado(c: Curso): void {
-    const nuevo = c.estado === 'PUBLICADO' ? 'BORRADOR' : 'PUBLICADO';
-    this.cursoService.cambiarEstado(c.id, nuevo).subscribe({
-      next: () => this.cargarDatos(),
-      error: (err) => console.error(err)
-    });
-  }
-
-  crearCurso(): void {
-    if (!this.nuevoCurso.titulo) return;
-
-    this.cursoService.crear(this.nuevoCurso).subscribe({
-      next: (creado) => {
-        this.mensajeExito = `¡Curso '${creado.titulo}' registrado con éxito!`;
-        this.nuevoCurso.titulo = '';
-        this.nuevoCurso.descripcion = '';
-        this.cargarDatos();
-        setTimeout(() => this.mensajeExito = '', 4000);
-      },
-      error: (err) => console.error(err)
-    });
+export class AdminPanelComponent implements AfterViewInit {
+  ngAfterViewInit(): void {
+    if (typeof window !== 'undefined' && window.initPortalAdmin) {
+      window.initPortalAdmin();
+    }
   }
 }

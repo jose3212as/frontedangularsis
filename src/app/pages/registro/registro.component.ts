@@ -1,126 +1,82 @@
-import { Component, inject } from '@angular/core';
+import { Component, AfterViewInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+
+declare const window: any;
 
 @Component({
   selector: 'app-registro',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule],
+  encapsulation: ViewEncapsulation.None,
   template: `
-    <div class="flex-1 py-12 px-4 flex items-center justify-center">
-      <div class="w-full max-w-lg bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
-        
-        <div class="text-center mb-6">
-          <div class="w-12 h-12 rounded-xl bg-brand-900 text-white flex items-center justify-center text-xl mx-auto mb-3 shadow-sm">
-            <i class="fa-solid fa-user-plus"></i>
-          </div>
-          <h2 class="font-heading font-extrabold text-2xl text-slate-900 mb-1">Registro de Estudiante</h2>
-          <p class="text-xs text-slate-500">Crea tu cuenta institucional para matricularte en cursos y talleres</p>
-        </div>
+	<!-- START SECTION TOP  -->
+	<section class="section-top">
+		<div class="container">
+			<div class="col-lg-10 offset-lg-1 text-center">
+				<div class="section-top-title wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.3s">
+					<h1>Registro de Estudiantes</h1>
+					<ul>
+						<li><a href="index.html">Inicio</a></li>
+						<li> / Crear Cuenta de Alumno</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</section>	
+	<!-- END SECTION TOP -->
 
-        @if (errorMensaje) {
-          <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 mb-4">
-            {{ errorMensaje }}
-          </div>
-        }
+	<!-- START REGISTER  -->
+	<section class="login_register section-padding">
+		<div class="container">
+			<div class="row">				
+				<div class="col-lg-6 offset-lg-3 col-xs-12">
+					<div class="register">
+						<h4 class="login_register_title">Crea tu cuenta de estudiante:</h4>
+						<p class="text-muted small mb-3">Completa tus datos para matricularte, recibir tu comprobante oficial y los enlaces de tus clases por WhatsApp y correo.</p>
 
-        <form (ngSubmit)="registrar()" class="space-y-4 text-xs">
-          
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Nombres</label>
-              <input type="text" [(ngModel)]="nombres" name="nombres" required placeholder="Carlos" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white">
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Apellidos</label>
-              <input type="text" [(ngModel)]="apellidos" name="apellidos" required placeholder="Estudiante" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white">
-            </div>
-          </div>
+						<form id="registro-form" onsubmit="hacerRegistro(event)">
+							<div class="form-group mb-2">
+								<label>Nombres *</label>
+								<input type="text" id="reg-nom" class="form-control requiredField input-label" required placeholder="Tus nombres">
+							</div>
+							<div class="form-group mb-2">
+								<label>Apellidos *</label>
+								<input type="text" id="reg-ape" class="form-control requiredField input-label" required placeholder="Tus apellidos">
+							</div>
+							<div class="form-group mb-2">
+								<label>DNI / Documento *</label>
+								<input type="text" id="reg-dni" class="form-control requiredField input-label" required maxlength="12" placeholder="8 dígitos">
+							</div>
+							<div class="form-group mb-2">
+								<label>WhatsApp (Para recibir tus enlaces de clase) *</label>
+								<input type="tel" id="reg-wa" class="form-control requiredField input-label" required placeholder="Ej. 999555666">
+							</div>
+							<div class="form-group mb-2">
+								<label>Correo Electrónico *</label>
+								<input type="email" id="reg-mail" class="form-control requiredField input-label" required placeholder="correo@ejemplo.com">
+							</div>
+							<div class="form-group mb-3">
+								<label>Contraseña *</label>
+								<input type="password" id="reg-pwd" class="form-control requiredField input-label" required minlength="6" placeholder="Mínimo 6 caracteres">
+							</div>
+							<div class="form-group col-lg-12">
+								<button class="btn_one w-100" type="submit" id="btn-reg">Crear Cuenta y Continuar</button>
+							</div>
+						</form>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">DNI (8 dígitos)</label>
-              <input type="text" maxlength="8" [(ngModel)]="dni" name="dni" required placeholder="72819024" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white">
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">WhatsApp (+51)</label>
-              <input type="text" [(ngModel)]="whatsapp" name="whatsapp" required placeholder="+51999888777" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white">
-            </div>
-          </div>
-
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Correo Electrónico</label>
-            <input type="email" [(ngModel)]="correo" name="correo" required placeholder="alumno@universidad.edu.pe" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white">
-          </div>
-
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Contraseña</label>
-            <input type="password" [(ngModel)]="password" name="password" required placeholder="••••••••" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600 focus:bg-white">
-          </div>
-
-          <button 
-            type="submit" 
-            [disabled]="cargando"
-            class="w-full py-3 bg-brand-900 hover:bg-brand-800 disabled:bg-slate-300 text-white font-bold text-xs rounded-lg shadow-sm transition">
-            @if (cargando) {
-              <i class="fa-solid fa-circle-notch fa-spin"></i> Registrando usuario...
-            } @else {
-              Crear Cuenta de Estudiante
-            }
-          </button>
-        </form>
-
-        <div class="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
-          ¿Ya tienes cuenta? 
-          <a routerLink="/login" class="font-bold text-brand-700 hover:text-brand-900">Inicia sesión</a>
-        </div>
-
-      </div>
-    </div>
+						<p class="mt-3 text-center">¿Ya tienes cuenta? <a href="login.html" class="fw-bold text-success">Inicia sesión</a></p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- END REGISTER -->
   `
 })
-export class RegistroComponent {
-  private auth = inject(AuthService);
-  private router = inject(Router);
-
-  nombres = '';
-  apellidos = '';
-  dni = '';
-  whatsapp = '+51';
-  correo = '';
-  password = '';
-
-  cargando = false;
-  errorMensaje = '';
-
-  registrar(): void {
-    if (!this.nombres || !this.apellidos || !this.dni || !this.correo || !this.password) {
-      this.errorMensaje = 'Por favor completa todos los campos requeridos.';
-      return;
+export class RegistroComponent implements AfterViewInit {
+  ngAfterViewInit(): void {
+    if (typeof window !== 'undefined' && window.initRegistroPage) {
+      window.initRegistroPage();
     }
-
-    this.cargando = true;
-    this.errorMensaje = '';
-
-    this.auth.registrar({
-      nombres: this.nombres,
-      apellidos: this.apellidos,
-      dni: this.dni,
-      whatsapp: this.whatsapp,
-      correo: this.correo,
-      password: this.password,
-      rol: 'ESTUDIANTE'
-    }).subscribe({
-      next: () => {
-        this.cargando = false;
-        this.router.navigate(['/mis-cursos']);
-      },
-      error: (err) => {
-        this.cargando = false;
-        this.errorMensaje = 'Error al registrarse: ' + (err.error?.message || err.message);
-      }
-    });
   }
 }

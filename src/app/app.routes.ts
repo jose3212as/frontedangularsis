@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
+import { HomeComponent } from './pages/home/home.component';
 import { CatalogoComponent } from './pages/catalogo/catalogo.component';
 import { CursoDetalleComponent } from './pages/curso-detalle/curso-detalle.component';
+import { CarritoComponent } from './pages/carrito/carrito.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { ConfirmacionComponent } from './pages/confirmacion/confirmacion.component';
 import { LoginComponent } from './pages/login/login.component';
@@ -10,14 +12,30 @@ import { DocentePanelComponent } from './pages/docente-panel/docente-panel.compo
 import { AdminPanelComponent } from './pages/admin-panel/admin-panel.component';
 
 export const routes: Routes = [
-  { path: '', component: CatalogoComponent },
+  { path: '', component: HomeComponent },
+  { path: 'index.html', component: HomeComponent },
+  { path: 'cursos', component: CatalogoComponent },
+  { path: 'cursos.html', component: CatalogoComponent },
+  { path: 'curso-detalle', component: CursoDetalleComponent },
+  { path: 'curso-detalle.html', component: CursoDetalleComponent },
   { path: 'curso/:id', component: CursoDetalleComponent },
-  { path: 'checkout/:id', component: CheckoutComponent },
-  { path: 'confirmacion/:id', component: ConfirmacionComponent },
+  { path: 'carrito', component: CarritoComponent },
+  { path: 'carrito.html', component: CarritoComponent },
+  { path: 'checkout', component: CheckoutComponent },
+  { path: 'checkout.html', component: CheckoutComponent },
+  { path: 'confirmacion', component: ConfirmacionComponent },
+  { path: 'confirmacion.html', component: ConfirmacionComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'login.html', component: LoginComponent },
   { path: 'registro', component: RegistroComponent },
+  { path: 'registro.html', component: RegistroComponent },
   { path: 'mis-cursos', component: EstudiantePanelComponent },
-  { path: 'docente', component: DocentePanelComponent },
-  { path: 'admin', component: AdminPanelComponent },
+  { path: 'mis-cursos.html', component: EstudiantePanelComponent },
+  { path: 'portal-estudiante', component: EstudiantePanelComponent },
+  { path: 'portal-estudiante.html', component: EstudiantePanelComponent },
+  { path: 'portal-docente', component: DocentePanelComponent },
+  { path: 'portal-docente.html', component: DocentePanelComponent },
+  { path: 'portal-admin', component: AdminPanelComponent },
+  { path: 'portal-admin.html', component: AdminPanelComponent },
   { path: '**', redirectTo: '' }
 ];

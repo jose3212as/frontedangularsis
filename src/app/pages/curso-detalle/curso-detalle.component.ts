@@ -1,285 +1,197 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule, Router } from '@angular/router';
-import { CursoService } from '../../services/curso.service';
-import { Curso } from '../../models/curso.model';
-import { AuthService } from '../../services/auth.service';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription, combineLatest } from 'rxjs';
+
+declare const window: any;
 
 @Component({
   selector: 'app-curso-detalle',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule],
+  encapsulation: ViewEncapsulation.None,
   template: `
-    <div class="flex-1 py-8">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <!-- Breadcrumbs -->
-        <nav class="flex items-center gap-2 text-xs text-slate-500 mb-6">
-          <a routerLink="/" class="hover:text-brand-900 transition">Inicio</a>
-          <i class="fa-solid fa-chevron-right text-[10px]"></i>
-          <a routerLink="/" class="hover:text-brand-900 transition">Catálogo</a>
-          <i class="fa-solid fa-chevron-right text-[10px]"></i>
-          <span class="text-slate-800 font-medium truncate max-w-xs">{{ curso?.titulo || 'Detalle' }}</span>
-        </nav>
+	<!-- START SECTION TOP -->
+	<section class="section-top">
+		<div class="container">
+			<div class="col-lg-10 offset-lg-1 text-center">
+				<div class="section-top-title">
+					<h1 id="page-course-title">Detalle de Capacitación</h1>
+					<ul>
+						<li><a href="index.html">Inicio</a></li>
+						<li> / Cursos / Detalle</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</section>	
+	<!-- END SECTION TOP -->
+	
+	<!-- Product Details Area  -->
+	<div class="prdct_dtls_page_area section-padding">
+		<div class="container">
+			<div class="row">
+				<!-- Product Details Image -->
+				<div class="col-md-6 col-xs-12">
+					<div class="pd_img fix">
+						<a class="venobox" id="course-img-link" href="assets/images/all-img/c1.png">
+							<img id="course-main-img" src="assets/images/all-img/c1.png" class="img-fluid" alt="Curso Gestión de Cursos"/>
+						</a>
+					</div>
+				</div>
+				<!-- Product Details Content -->
+				<div class="col-md-6 col-xs-12">
+					<div class="prdct_dtls_content">
+						<div class="mb-2" id="course-modality-badge-box">
+							<span class="badge-mod-virtual"><i class="fa fa-video-camera"></i> Clases Virtuales en Vivo (Zoom / Meet)</span>
+						</div>
+						<a class="pd_title" href="javascript:void(0)" id="course-name-heading">Desarrollo Web Integrado con Spring Boot</a>
+						
+						<div class="pd_price_dtls fix">
+							<div class="pd_price">
+								<span class="new" id="course-price-display">S/ 150.00</span>
+							</div>
+							<div class="pd_ratng">
+								<div class="rtngs">
+									<i class="fa fa-star"></i>
+									<i class="fa fa-star"></i>
+									<i class="fa fa-star"></i>
+									<i class="fa fa-star"></i>
+									<i class="fa fa-star"></i>
+									<span>(5.0)</span>
+								</div>
+							</div>
+						</div>
 
-        @if (loading) {
-          <div class="bg-white rounded-xl p-16 text-center border border-slate-200">
-            <i class="fa-solid fa-circle-notch fa-spin text-3xl text-brand-600 mb-3"></i>
-            <p class="text-xs text-slate-500">Cargando detalles académicos del curso...</p>
-          </div>
-        } @else if (curso) {
-          
-          <!-- Hero Section -->
-          <div class="bg-gradient-to-r from-brand-950 via-brand-900 to-slate-900 text-white rounded-2xl p-6 sm:p-10 shadow-lg mb-8">
-            <div class="max-w-3xl">
-              <div class="flex flex-wrap items-center gap-2.5 mb-4">
-                <span class="px-3 py-1 rounded-full text-xs font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-                  ESPECIALIZACIÓN PROFESIONAL
-                </span>
-                @if (curso.modalidad === 'VIRTUAL') {
-                  <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Virtual en Vivo (Meet/Zoom)
-                  </span>
-                } @else {
-                  <span class="px-3 py-1 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-1.5">
-                    <i class="fa-solid fa-location-dot"></i> Presencial (Campus)
-                  </span>
-                }
-              </div>
+						<div class="pd_text">
+							<h4>Descripción y Objetivos:</h4>
+							<p id="course-overview-text">Domina el desarrollo con Spring Boot, arquitectura de microservicios, seguridad con JWT y despliegue empresarial.</p>
+						</div>
 
-              <h1 class="font-heading text-2xl sm:text-4xl font-extrabold tracking-tight mb-3 leading-tight">
-                {{ curso.titulo }}
-              </h1>
-              <p class="text-sm sm:text-base text-slate-300 mb-6 leading-relaxed">
-                {{ curso.descripcion || 'Diseño de microservicios con Spring Boot 3, Spring Cloud Gateway, seguridad 2FA con OTP, pasarela de pago Mercado Pago y facturación electrónica automatizada en PDF.' }}
-              </p>
+						<!-- Especificación de Modalidad y Aforo -->
+						<div class="pd_img_size fix">
+							<h4>Modalidad de Dictado:</h4>
+							<a href="javascript:void(0)" class="active" id="btn-modalidad-info" style="width: auto; padding: 0 15px;">VIRTUAL EN VIVO</a>
+						</div>
 
-              <!-- Metadatos del curso -->
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-800 text-xs">
-                <div>
-                  <span class="text-slate-400 block text-[11px]">Horario Oficial</span>
-                  <span class="font-semibold text-white">{{ curso.horario }}</span>
-                </div>
-                <div>
-                  <span class="text-slate-400 block text-[11px]">Duración Estimada</span>
-                  <span class="font-semibold text-white">30 Horas Lectivas</span>
-                </div>
-                <div>
-                  <span class="text-slate-400 block text-[11px]">Certificación</span>
-                  <span class="font-semibold text-white">Digital con QR</span>
-                </div>
-                <div>
-                  <span class="text-slate-400 block text-[11px]">Valoración</span>
-                  <span class="font-semibold text-amber-400"><i class="fa-solid fa-star"></i> 4.9/5 (120 alumnos)</span>
-                </div>
-              </div>
-            </div>
-          </div>
+						<div id="modality-location-box" class="p-3 bg-light rounded mb-3 border">
+							<div class="d-flex align-items-center"><i class="fa fa-video-camera text-primary me-3 fa-2x"></i><div><strong>Plataforma Online:</strong> Google Meet / Zoom en Vivo<br><small class="text-muted">Horario: Lun y Mie 19:00 - 22:00 | Enlace enviado al instante por WhatsApp</small></div></div>
+						</div>
 
-          <!-- Layout: Contenido Detallado 65% + Tarjeta Sticky 35% -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
-            <!-- Columna Izquierda (65%) -->
-            <div class="lg:col-span-8 space-y-8">
-              
-              <!-- Lo que aprenderás -->
-              <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-                <h3 class="font-heading font-bold text-base text-slate-900 mb-4 flex items-center gap-2">
-                  <i class="fa-solid fa-bullseye text-brand-600"></i> Competencias que desarrollarás
-                </h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
-                    <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i>
-                    <span class="text-xs text-slate-700 leading-relaxed font-medium">Arquitectura de Microservicios con Spring Cloud Gateway</span>
-                  </div>
-                  <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
-                    <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i>
-                    <span class="text-xs text-slate-700 leading-relaxed font-medium">Seguridad y autenticación 2FA con OTP y expiración</span>
-                  </div>
-                  <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
-                    <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i>
-                    <span class="text-xs text-slate-700 leading-relaxed font-medium">Checkout y Webhooks con pasarela Mercado Pago</span>
-                  </div>
-                  <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
-                    <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i>
-                    <span class="text-xs text-slate-700 leading-relaxed font-medium">Microservicio políglota de Boletas y Facturas PDF en Python</span>
-                  </div>
-                </div>
-              </div>
+						<!-- Control de Cupos y Aforo -->
+						<div class="mb-4">
+							<h4>Control de Vacantes en Tiempo Real:</h4>
+							<div id="seats-live-status-container">
+								<span class="seats-live-badge"><i class="fa fa-table"></i> Quedan 29 vacantes libres de 30</span>
+							</div>
+						</div>
 
-              <!-- Temario Académico Expandible -->
-              <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-                <h3 class="font-heading font-bold text-base text-slate-900 mb-4 flex items-center gap-2">
-                  <i class="fa-solid fa-layer-group text-brand-600"></i> Temario Académico Detallado
-                </h3>
-                
-                <div class="space-y-3">
-                  <div class="border border-slate-200 rounded-lg overflow-hidden">
-                    <div class="p-3.5 bg-slate-50 font-bold text-xs text-slate-900 flex justify-between items-center">
-                      <span>Módulo 1: Fundamentos y Gateway Centralizado</span>
-                      <span class="text-slate-500 font-normal">8 hrs</span>
-                    </div>
-                    <div class="p-4 text-xs text-slate-600 border-t border-slate-200 leading-relaxed">
-                      Estructura Maven padre, Spring Boot 3, configuración de Spring Cloud Gateway MVC y enrutamiento centralizado.
-                    </div>
-                  </div>
+						<!-- Product Action -->
+						<div class="pd_btn fix">
+							<button id="btn-enroll-action" class="btn btn-default acc_btn" style="cursor: pointer;">
+								<i class="fa fa-shopping-cart me-1"></i> Inscribirme
+							</button>
+							<a href="carrito.html" class="btn btn-default acc_btn btn_icn"><i class="fa fa-shopping-bag"></i></a>
+							<a href="cursos.html" class="btn btn-default acc_btn btn_icn"><i class="fa fa-arrow-left"></i></a>
+						</div>
 
-                  <div class="border border-slate-200 rounded-lg overflow-hidden">
-                    <div class="p-3.5 bg-slate-50 font-bold text-xs text-slate-900 flex justify-between items-center">
-                      <span>Módulo 2: Autenticación, Roles y Seguridad 2FA</span>
-                      <span class="text-slate-500 font-normal">8 hrs</span>
-                    </div>
-                    <div class="p-4 text-xs text-slate-600 border-t border-slate-200 leading-relaxed">
-                      Gestión de roles (ADMIN, DOCENTE, ESTUDIANTE), generación de código OTP de 6 dígitos con vigencia de 5 minutos y verificación.
-                    </div>
-                  </div>
+						<div class="pd_share_area fix mt-3">
+							<h4>Garantías de la plataforma:</h4>
+							<ul class="text-muted small ps-3">
+								<li><i class="fa fa-check text-success"></i> Descuento de cupo en tiempo real (cero sobreventa).</li>
+								<li><i class="fa fa-credit-card text-primary"></i> Pago protegido con pasarela oficial de Mercado Pago.</li>
+								<li><i class="fa fa-whatsapp text-success"></i> Envío automático a tu WhatsApp con los enlaces de clase o aula física.</li>
+								<li><i class="fa fa-file-text-o text-info"></i> Emisión inmediata de Boleta o Factura electrónica SUNAT.</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<!-- Pestañas Gestión de Cursos: Description, Information, Reviews -->
+			<div class="row">
+				<div class="col-xs-12">					
+					<div class="pd_tab_area fix">									
+						<ul class="pd_tab_btn nav nav-tabs" role="tablist">
+						  <li>
+							<a [class.active]="activeTab === 'description'" href="javascript:void(0)" (click)="selectTab('description')" role="tab">Temario del Curso</a>
+						  </li>
+						  <li>
+							<a [class.active]="activeTab === 'information'" href="javascript:void(0)" (click)="selectTab('information')" role="tab">Modalidad & Acceso</a>
+						  </li>
+						  <li>
+							<a [class.active]="activeTab === 'reviews'" href="javascript:void(0)" (click)="selectTab('reviews')" role="tab">Docente & Reseñas</a>
+						  </li>
+						</ul>
 
-                  <div class="border border-slate-200 rounded-lg overflow-hidden">
-                    <div class="p-3.5 bg-slate-50 font-bold text-xs text-slate-900 flex justify-between items-center">
-                      <span>Módulo 3: Pedidos, Descuento de Vacantes y Mercado Pago</span>
-                      <span class="text-slate-500 font-normal">8 hrs</span>
-                    </div>
-                    <div class="p-4 text-xs text-slate-600 border-t border-slate-200 leading-relaxed">
-                      Reserva de aforo atómica, integración del SDK de Mercado Pago, generación de preferencias y procesamiento de pagos con Webhook.
-                    </div>
-                  </div>
+						<!-- Tab panes -->
+						<div class="tab-content">
+							<div role="tabpanel" class="tab-pane fade" [class.show]="activeTab === 'description'" [class.active]="activeTab === 'description'" id="description">
+								<div id="tab-temario-content">Contenido completo del curso...</div>
+							</div>
 
-                  <div class="border border-slate-200 rounded-lg overflow-hidden">
-                    <div class="p-3.5 bg-slate-50 font-bold text-xs text-slate-900 flex justify-between items-center">
-                      <span>Módulo 4: Microservicio de Comprobantes PDF & Correo</span>
-                      <span class="text-slate-500 font-normal">6 hrs</span>
-                    </div>
-                    <div class="p-4 text-xs text-slate-600 border-t border-slate-200 leading-relaxed">
-                      Arquitectura políglota con FastAPI en Python, cálculo de IGV 18%, generación de boletas con ReportLab y despacho SMTP.
-                    </div>
-                  </div>
-                </div>
-              </div>
+							<div role="tabpanel" class="tab-pane fade" [class.show]="activeTab === 'information'" [class.active]="activeTab === 'information'" id="information">
+								<div id="tab-info-modality"></div>
+							</div>
 
-              <!-- Docente -->
-              <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex items-start gap-4">
-                <div class="w-14 h-14 rounded-full bg-brand-900 text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
-                  <i class="fa-solid fa-user-tie"></i>
-                </div>
-                <div>
-                  <div class="flex items-center gap-2 mb-1">
-                    <h4 class="font-heading font-bold text-sm text-slate-900">Prof. Roberto Docente</h4>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-brand-700 border border-blue-200">Verificado</span>
-                  </div>
-                  <p class="text-xs font-medium text-slate-500 mb-2">Arquitecto de Software & Especialista Cloud Java</p>
-                  <p class="text-xs text-slate-600 leading-relaxed">
-                    Más de 10 años de experiencia diseñando plataformas de alta concurrencia y sistemas distribuidos en el sector financiero y educativo.
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Columna Derecha: Tarjeta Sticky de Matrícula (35%) -->
-            <div class="lg:col-span-4 sticky top-20 space-y-4">
-              <div class="bg-white rounded-xl border border-slate-200 shadow-md p-6 overflow-hidden">
-                
-                <div class="text-center pb-4 border-b border-slate-100">
-                  <span class="text-xs font-semibold text-slate-500 block mb-1">Inversión del Curso</span>
-                  <div class="flex items-center justify-center gap-2">
-                    <span class="font-heading text-3xl font-extrabold text-slate-900">
-                      S/ {{ curso.precio | number:'1.2-2' }}
-                    </span>
-                    <span class="text-xs text-slate-400 line-through">S/ 250.00</span>
-                  </div>
-                  <span class="inline-block mt-1 px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                    40% Dcto. por matrícula anticipada
-                  </span>
-                </div>
-
-                <!-- Medidor de Urgencia de Vacantes -->
-                <div class="my-5 p-3.5 bg-amber-50 rounded-lg border border-amber-200">
-                  <div class="flex items-center justify-between text-xs font-bold mb-1">
-                    <span class="text-amber-900">
-                      <i class="fa-solid fa-fire text-amber-500 mr-1"></i> ¡Pocas vacantes!
-                    </span>
-                    <span class="text-amber-800">{{ curso.aforoDisponible }} disponibles</span>
-                  </div>
-                  <div class="w-full bg-amber-200/60 rounded-full h-2 overflow-hidden mb-1">
-                    <div 
-                      class="h-2 rounded-full bg-amber-500"
-                      [style.width.%]="((curso.aforoMaximo - curso.aforoDisponible) / curso.aforoMaximo) * 100">
-                    </div>
-                  </div>
-                  <span class="text-[10px] text-amber-700 block">
-                    {{ curso.aforoMaximo - curso.aforoDisponible }} de {{ curso.aforoMaximo }} inscritos ya aseguraron su cupo.
-                  </span>
-                </div>
-
-                <!-- Botón de Matrícula Directa -->
-                <button 
-                  (click)="iniciarMatricula()" 
-                  [disabled]="curso.aforoDisponible <= 0"
-                  class="w-full py-3.5 bg-brand-900 hover:bg-brand-800 disabled:bg-slate-300 text-white font-bold text-sm rounded-lg shadow-md transition-all flex items-center justify-center gap-2 mb-3">
-                  <i class="fa-solid fa-credit-card"></i> Matricularme Ahora
-                </button>
-
-                <!-- Garantías -->
-                <ul class="space-y-2 text-xs text-slate-600 pt-3 border-t border-slate-100">
-                  <li class="flex items-center gap-2">
-                    <i class="fa-solid fa-circle-check text-emerald-600"></i> Emisión inmediata de Boleta o Factura
-                  </li>
-                  <li class="flex items-center gap-2">
-                    <i class="fa-solid fa-circle-check text-emerald-600"></i> Enlace Google Meet activo tras confirmar
-                  </li>
-                  <li class="flex items-center gap-2">
-                    <i class="fa-solid fa-circle-check text-emerald-600"></i> Confirmación por WhatsApp instantánea
-                  </li>
-                </ul>
-
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-center gap-3 text-slate-400 text-sm">
-                  <span title="Mercado Pago"><i class="fa-solid fa-handshake"></i></span>
-                  <span title="Visa"><i class="fa-brands fa-cc-visa"></i></span>
-                  <span title="Mastercard"><i class="fa-brands fa-cc-mastercard"></i></span>
-                  <span title="SSL 256"><i class="fa-solid fa-lock"></i></span>
-                </div>
-
-              </div>
-            </div>
-
-          </div>
-
-        }
-      </div>
-    </div>
+							<div role="tabpanel" class="tab-pane fade" [class.show]="activeTab === 'reviews'" [class.active]="activeTab === 'reviews'" id="reviews">
+								<div class="pda_rtng_area fix">
+									<h4>5.0 <span>(Calificación)</span></h4>
+									<span>Basado en opiniones de alumnos egresados</span>
+								</div>
+								<div class="rtng_cmnt_area fix">
+									<div class="single_rtng_cmnt">
+										<div class="rtngs">
+											<i class="fa fa-star"></i>
+											<i class="fa fa-star"></i>
+											<i class="fa fa-star"></i>
+											<i class="fa fa-star"></i>
+											<i class="fa fa-star"></i>
+										</div>
+										<div class="rtng_author">
+											<h3 id="docente-tab-name">Docente Certificado</h3>
+											<span>Especialista en la materia</span>
+										</div>
+										<p>Excelente metodología 100% práctica. La plataforma me entregó al instante de pagar el acceso por WhatsApp y no tuve ningún problema para ingresar a la clase.</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
   `
 })
-export class CursoDetalleComponent implements OnInit {
+export class CursoDetalleComponent implements AfterViewInit, OnDestroy {
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private cursoService = inject(CursoService);
-  private auth = inject(AuthService);
-  private cdr = inject(ChangeDetectorRef);
+  private sub?: Subscription;
+  activeTab: 'description' | 'information' | 'reviews' = 'description';
 
-  curso: Curso | null = null;
-  loading = true;
-
-  ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.cursoService.buscarPorId(id).subscribe({
-        next: (data) => {
-          this.curso = data;
-          this.loading = false;
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error(err);
-          this.loading = false;
-          this.cdr.detectChanges();
+  ngAfterViewInit(): void {
+    this.sub = combineLatest([this.route.params, this.route.queryParams]).subscribe(([params, queryParams]) => {
+      const routeId = params['id'] || queryParams['id'];
+      if (routeId && !window.location.search.includes('id=')) {
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.set('id', routeId);
+          window.history.replaceState({}, '', url.toString());
+        } catch (_) {}
+      }
+      setTimeout(() => {
+        if (typeof window !== 'undefined' && window.initDetalle) {
+          window.initDetalle();
         }
-      });
-    }
+      }, 20);
+    });
   }
 
-  iniciarMatricula(): void {
-    if (this.curso) {
-      this.router.navigate(['/checkout', this.curso.id]);
-    }
+  selectTab(tab: 'description' | 'information' | 'reviews'): void {
+    this.activeTab = tab;
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 }

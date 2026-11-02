@@ -1195,7 +1195,7 @@ html {
 
   background: #f8fafc;
 
-  min-height: calc(125vh - 70px);
+  min-height: calc(var(--app-min-vh, 125vh) - 70px);
 
   padding: 40px 0 70px;
 
@@ -4607,7 +4607,7 @@ html {
 }
 
 body {
-  min-height: 125vh;
+  min-height: var(--app-min-vh, 125vh);
   display: flex;
   flex-direction: column;
 }
@@ -4616,7 +4616,7 @@ app-root,
 app-root > div {
   display: flex;
   flex-direction: column;
-  min-height: 125vh;
+  min-height: var(--app-min-vh, 125vh);
   flex: 1;
 }
 

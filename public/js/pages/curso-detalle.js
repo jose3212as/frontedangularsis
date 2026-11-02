@@ -1,8 +1,7 @@
-﻿(function() {
+(function() {
 /**
  * curso-detalle.js - Lógica de la Vista de Detalle del Curso
- * Carga de información detallada, control de vacantes en tiempo real,
- * temarios por curso, información de sede o enlace virtual y reserva con control de usuario.
+ * Renderizado instantáneo (0ms) y sincronización en paralelo con PostgreSQL.
  */
 
 let activeCurso = null;
@@ -10,39 +9,75 @@ let activeCurso = null;
 async function initDetalle() {
 	const params = new URLSearchParams(window.location.search);
 	const id = params.get('id') || 'b0000000-0000-0000-0000-000000000001';
-	activeCurso = await CursosService.getCursoById(id);
 
-	if (!activeCurso) {
-		const fallbackCursos = (typeof CONFIG !== 'undefined' && CONFIG.INITIAL_COURSES) ? CONFIG.INITIAL_COURSES : [];
-		activeCurso = fallbackCursos.length > 0 ? fallbackCursos[0] : null;
-	}
-	if (!activeCurso) {
-		return;
+	// 1. Renderizado instantáneo desde caché en memoria / localStorage (0ms)
+	const cachedList = (typeof CursosService !== 'undefined' && CursosService.getCachedCursos)
+		? CursosService.getCachedCursos('TODOS')
+		: ((typeof CONFIG !== 'undefined' && CONFIG.INITIAL_COURSES) ? CONFIG.INITIAL_COURSES : []);
+	activeCurso = cachedList.find(c => c.id === id) || cachedList[0] || null;
+
+	const cachedPaid = (typeof PedidosService !== 'undefined' && PedidosService.getCachedPaidCourseIds)
+		? PedidosService.getCachedPaidCourseIds()
+		: new Set();
+
+	if (activeCurso) {
+		renderCursoDetalleUI(activeCurso, cachedPaid.has(activeCurso.id));
 	}
 
-	// Actualizar UI con datos del curso
+	// 2. Sincronizar en paralelo curso y matrículas desde PostgreSQL
+	const user = AuthService.getCurrentUser();
+	let isPaid = cachedPaid.has(id);
+
+	await Promise.allSettled([
+		(async () => {
+			const remoteCurso = await CursosService.getCursoById(id);
+			if (remoteCurso) {
+				activeCurso = remoteCurso;
+			}
+		})(),
+		(async () => {
+			if (!user) {
+				isPaid = false;
+				return;
+			}
+			try {
+				const matriculas = await PedidosService.getMisMatriculas(user.id);
+				isPaid = (matriculas || []).some(m => {
+					const cid = (m.curso && m.curso.id) ? m.curso.id : (m.cursoId || m.id);
+					return m.estado === 'PAGADO' && cid === id;
+				});
+			} catch (_) {}
+		})()
+	]);
+
+	if (activeCurso) {
+		renderCursoDetalleUI(activeCurso, isPaid);
+	}
+}
+
+function renderCursoDetalleUI(curso, isPaid) {
 	const elTitle = document.getElementById('page-course-title');
-	if (elTitle) elTitle.textContent = activeCurso.titulo;
+	if (elTitle) elTitle.textContent = curso.titulo;
 
 	const elHeading = document.getElementById('course-name-heading');
-	if (elHeading) elHeading.textContent = activeCurso.titulo;
+	if (elHeading) elHeading.textContent = curso.titulo;
 
 	const elPrice = document.getElementById('course-price-display');
-	if (elPrice) elPrice.textContent = `S/ ${Number(activeCurso.precio).toFixed(2)}`;
+	if (elPrice) elPrice.textContent = `S/ ${Number(curso.precio).toFixed(2)}`;
 
 	const elOverview = document.getElementById('course-overview-text');
-	if (elOverview) elOverview.textContent = activeCurso.descripcion;
+	if (elOverview) elOverview.textContent = curso.descripcion;
 
 	const elImg = document.getElementById('course-main-img');
-	if (elImg) elImg.src = activeCurso.imagen;
+	if (elImg) elImg.src = curso.imagen;
 
 	const elImgLink = document.getElementById('course-img-link');
-	if (elImgLink) elImgLink.href = activeCurso.imagen;
+	if (elImgLink) elImgLink.href = curso.imagen;
 
 	const elDocente = document.getElementById('docente-tab-name');
-	if (elDocente) elDocente.textContent = activeCurso.docente || 'Docente Certificado';
+	if (elDocente) elDocente.textContent = curso.docente || 'Docente Certificado';
 
-	const isVirtual = activeCurso.modalidad === 'VIRTUAL';
+	const isVirtual = curso.modalidad === 'VIRTUAL';
 	const badgeBox = document.getElementById('course-modality-badge-box');
 	if (badgeBox) {
 		badgeBox.innerHTML = isVirtual
@@ -65,32 +100,19 @@ async function initDetalle() {
 			`;
 		} else {
 			locBox.innerHTML = `
-				<p class="mb-1 text-dark"><i class="fa fa-map-marker text-danger me-1"></i> <strong>Sede:</strong> ${activeCurso.direccionClase || 'Av. Universitaria 1234, Lima'}</p>
-				<p class="mb-1 text-dark"><i class="fa fa-door-open text-primary me-1"></i> <strong>Aula asignada:</strong> <span class="badge bg-dark">${activeCurso.aula || 'Laboratorio 204'}</span></p>
+				<p class="mb-1 text-dark"><i class="fa fa-map-marker text-danger me-1"></i> <strong>Sede:</strong> ${curso.direccionClase || 'Av. Universitaria 1234, Lima'}</p>
+				<p class="mb-1 text-dark"><i class="fa fa-door-open text-primary me-1"></i> <strong>Aula asignada:</strong> <span class="badge bg-dark">${curso.aula || 'Laboratorio 204'}</span></p>
 				<small class="text-danger"><i class="fa fa-exclamation-triangle me-1"></i> Aforo estricto de carpetas. Asiento reservado garantizado al pagar.</small>
 			`;
 		}
 	}
 
-	// Verificar si el alumno ya tiene este curso pagado
-	let isPaid = false;
-	const user = AuthService.getCurrentUser();
-	if (user) {
-		try {
-			const matriculas = await PedidosService.getMisMatriculas(user.id);
-			isPaid = (matriculas || []).some(m => {
-				const cid = (m.curso && m.curso.id) ? m.curso.id : (m.cursoId || m.id);
-				return m.estado === 'PAGADO' && cid === activeCurso.id;
-			});
-		} catch (_) {}
-	}
-
 	// Aforo y botón de acción principal
-	const total = activeCurso.aforoMaximo || 30;
-	const libres = activeCurso.aforoDisponible !== undefined ? activeCurso.aforoDisponible : 30;
+	const total = curso.aforoMaximo || 30;
+	const libres = curso.aforoDisponible !== undefined ? curso.aforoDisponible : 30;
 	const seatsBox = document.getElementById('seats-live-status-container');
 	const btnAction = document.getElementById('btn-enroll-action');
-	const inCart = CartService.isInCart(activeCurso.id);
+	const inCart = CartService.isInCart(curso.id);
 
 	if (seatsBox && btnAction) {
 		if (isPaid) {
@@ -117,7 +139,7 @@ async function initDetalle() {
 			btnAction.style.background = '';
 			btnAction.innerHTML = `<i class="fa fa-shopping-cart me-1"></i> Inscribirme`;
 			btnAction.onclick = () => {
-				const res = CartService.addToCart(activeCurso);
+				const res = CartService.addToCart(curso);
 				CartService.bumpBadge();
 				Notifications.showToast(res.message || '¡Curso agregado al carrito!', 'success');
 				setTimeout(() => {
@@ -149,7 +171,7 @@ async function initDetalle() {
 		]
 	};
 
-	const temario = temariosPorCurso[activeCurso.titulo] || [
+	const temario = temariosPorCurso[curso.titulo] || [
 		'Módulo 1: Fundamentos y configuración de entorno profesional.',
 		'Módulo 2: Arquitectura moderna, buenas prácticas y desarrollo de casos reales.',
 		'Módulo 3: Pruebas, seguridad y optimización del rendimiento.',
@@ -163,7 +185,7 @@ async function initDetalle() {
 	const tabTemario = document.getElementById('tab-temario-content');
 	if (tabTemario) {
 		tabTemario.innerHTML = `
-			<p class="mb-3">${activeCurso.descripcion}</p>
+			<p class="mb-3">${curso.descripcion}</p>
 			<h5 class="fw-bold mb-3">Plan de Estudios Oficial:</h5>
 			<ul class="list-unstyled ps-1">${temarioHtml}</ul>
 		`;
@@ -180,7 +202,7 @@ async function initDetalle() {
 				</div>
 				<div class="col-md-6 mb-3">
 					<h5 class="fw-bold"><i class="fa fa-clock-o text-success me-2"></i> Horario y Duración</h5>
-					<p class="text-muted">${activeCurso.horario}. Todas las sesiones quedan grabadas en alta definición con acceso ilimitado para repaso.</p>
+					<p class="text-muted">${curso.horario}. Todas las sesiones quedan grabadas en alta definición con acceso ilimitado para repaso.</p>
 				</div>
 				<div class="col-md-6 mb-3">
 					<h5 class="fw-bold"><i class="fa fa-certificate text-warning me-2"></i> Certificación Oficial</h5>
@@ -195,15 +217,15 @@ async function initDetalle() {
 			<div class="row">
 				<div class="col-md-6 mb-3">
 					<h5 class="fw-bold"><i class="fa fa-building text-success me-2"></i> Modalidad Presencial en Sede</h5>
-					<p class="text-muted"><strong>Sede:</strong> ${activeCurso.direccionClase || 'Av. Universitaria 1234, Pabellón B, Lima'}<br><strong>Aula asignada:</strong> <span class="badge bg-dark">${activeCurso.aula || 'Laboratorio 204'}</span></p>
+					<p class="text-muted"><strong>Sede:</strong> ${curso.direccionClase || 'Av. Universitaria 1234, Pabellón B, Lima'}<br><strong>Aula asignada:</strong> <span class="badge bg-dark">${curso.aula || 'Laboratorio 204'}</span></p>
 				</div>
 				<div class="col-md-6 mb-3">
 					<h5 class="fw-bold"><i class="fa fa-users text-primary me-2"></i> Aforo Físico Estricto</h5>
-					<p class="text-muted">Cada alumno cuenta con una computadora y carpeta física asignada. Cero riesgo de sobreventa: solo se admiten ${activeCurso.aforoMaximo} participantes.</p>
+					<p class="text-muted">Cada alumno cuenta con una computadora y carpeta física asignada. Cero riesgo de sobreventa: solo se admiten ${curso.aforoMaximo} participantes.</p>
 				</div>
 				<div class="col-md-6 mb-3">
 					<h5 class="fw-bold"><i class="fa fa-calendar text-danger me-2"></i> Horario de Laboratorio</h5>
-					<p class="text-muted">${activeCurso.horario}. El docente asiste de forma personalizada durante cada sesión práctica.</p>
+					<p class="text-muted">${curso.horario}. El docente asiste de forma personalizada durante cada sesión práctica.</p>
 				</div>
 				<div class="col-md-6 mb-3">
 					<h5 class="fw-bold"><i class="fa fa-certificate text-warning me-2"></i> Certificación Física y Digital</h5>

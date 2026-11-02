@@ -2,13 +2,13 @@
  * CONFIG.JS - Configuración Global y Endpoints de Microservicios
  */
 const CONFIG = {
-  // Enrutamiento de Microservicios a través del API Gateway
+  // Usamos 127.0.0.1 para eliminar la latencia de resolución IPv6 (::1) de localhost en Windows
   API_BASE_URL: (typeof window !== 'undefined' && window.location.port === '8080')
     ? `${window.location.origin}/api`
-    : 'http://localhost:8080/api',
-  AUTH_SERVICE_URL: 'http://localhost:8081/api/auth',
-  CURSOS_SERVICE_URL: 'http://localhost:8082/api/cursos',
-  PEDIDOS_SERVICE_URL: 'http://localhost:8083/api/pedidos',
+    : 'http://127.0.0.1:8080/api',
+  AUTH_SERVICE_URL: 'http://127.0.0.1:8081/api/auth',
+  CURSOS_SERVICE_URL: 'http://127.0.0.1:8082/api/cursos',
+  PEDIDOS_SERVICE_URL: 'http://127.0.0.1:8083/api/pedidos',
 
   // Llaves de almacenamiento local (LocalStorage)
   STORAGE_KEYS: {
@@ -19,7 +19,7 @@ const CONFIG = {
     LAST_ORDER: 'last_successful_order'
   },
 
-  // Datos semilla sincronizados al 100% con database/schema_local.sql y PostgreSQL
+  // Datos semilla sincronizados al 100% con database/schema_local.sql y PostgreSQL (12 cursos)
   INITIAL_COURSES: [
     {
       id: 'b0000000-0000-0000-0000-000000000001',
@@ -87,7 +87,7 @@ const CONFIG = {
       direccionClase: null,
       aula: null,
       docente: 'Ing. Roberto Docente',
-      imagen: 'assets/images/all-img/c1.png'
+      imagen: 'assets/images/all-img/c4.png'
     },
     {
       id: 'b0000000-0000-0000-0000-000000000005',
@@ -104,7 +104,7 @@ const CONFIG = {
       direccionClase: null,
       aula: null,
       docente: 'Ing. Roberto Docente',
-      imagen: 'assets/images/all-img/c2.png'
+      imagen: 'assets/images/all-img/c5.png'
     },
     {
       id: 'b0000000-0000-0000-0000-000000000006',
@@ -121,7 +121,109 @@ const CONFIG = {
       direccionClase: 'Av. Universitaria 1234, Lima',
       aula: 'Laboratorio de Ciberseguridad 301',
       docente: 'Ing. Carlos Mendoza',
+      imagen: 'assets/images/all-img/c6.png'
+    },
+    {
+      id: 'b0000000-0000-0000-0000-000000000007',
+      titulo: 'Inteligencia Artificial & Machine Learning con Python',
+      descripcion: 'Modelos predictivos, redes neuronales con PyTorch y TensorFlow, procesamiento de lenguaje natural y despliegue de modelos IA en producción.',
+      modalidad: 'VIRTUAL',
+      precio: 210.00,
+      horario: 'Mar y Jue 19:00 - 22:00',
+      fechaInicio: '2026-10-28T19:00:00Z',
+      fechaFin: '2026-12-10T22:00:00Z',
+      aforoMaximo: 30,
+      aforoDisponible: 19,
+      enlaceClase: 'https://meet.google.com/ia-ml-python',
+      direccionClase: null,
+      aula: null,
+      docente: 'Ing. Roberto Docente',
+      imagen: 'assets/images/all-img/c1.png'
+    },
+    {
+      id: 'b0000000-0000-0000-0000-000000000008',
+      titulo: 'Desarrollo Mobile Multiplataforma con Flutter',
+      descripcion: 'Creación de aplicaciones nativas para iOS y Android desde una única base de código con Dart, Flutter 3, Firebase y pasarelas móviles.',
+      modalidad: 'VIRTUAL',
+      precio: 175.00,
+      horario: 'Lun, Mie y Vie 19:30 - 21:30',
+      fechaInicio: '2026-11-02T19:30:00Z',
+      fechaFin: '2026-12-14T21:30:00Z',
+      aforoMaximo: 25,
+      aforoDisponible: 14,
+      enlaceClase: 'https://zoom.us/j/5544332211',
+      direccionClase: null,
+      aula: null,
+      docente: 'Ing. Roberto Docente',
+      imagen: 'assets/images/all-img/c2.png'
+    },
+    {
+      id: 'b0000000-0000-0000-0000-000000000009',
+      titulo: 'Bases de Datos Avanzadas: PostgreSQL, MongoDB y Redis',
+      descripcion: 'Diseño de esquemas de alto rendimiento, optimización de consultas SQL, indexación avanzada, replicación y caché distribuido en memoria.',
+      modalidad: 'VIRTUAL',
+      precio: 165.00,
+      horario: 'Sab 15:00 - 19:00',
+      fechaInicio: '2026-11-07T15:00:00Z',
+      fechaFin: '2026-12-19T19:00:00Z',
+      aforoMaximo: 25,
+      aforoDisponible: 11,
+      enlaceClase: 'https://meet.google.com/db-avanzadas-live',
+      direccionClase: null,
+      aula: null,
+      docente: 'Ing. Roberto Docente',
       imagen: 'assets/images/all-img/c3.png'
+    },
+    {
+      id: 'b0000000-0000-0000-0000-000000000010',
+      titulo: 'QA Automation & Testing Integral con Selenium y Postman',
+      descripcion: 'Automatización de pruebas E2E, pruebas de regresión, testing de APIs REST, pruebas de carga con JMeter e integración en pipelines ágiles.',
+      modalidad: 'VIRTUAL',
+      precio: 155.00,
+      horario: 'Mar y Jue 20:00 - 22:30',
+      fechaInicio: '2026-11-05T20:00:00Z',
+      fechaFin: '2026-12-17T22:30:00Z',
+      aforoMaximo: 25,
+      aforoDisponible: 18,
+      enlaceClase: 'https://zoom.us/j/6677889900',
+      direccionClase: null,
+      aula: null,
+      docente: 'Ing. Roberto Docente',
+      imagen: 'assets/images/all-img/c4.png'
+    },
+    {
+      id: 'b0000000-0000-0000-0000-000000000011',
+      titulo: 'Taller Presencial de Redes y Telecomunicaciones Cisco CCNA',
+      descripcion: 'Configuración práctica con routers y switches reales en gabinete, subredes VLAN, enrutamiento OSPF y seguridad perimetral en laboratorio.',
+      modalidad: 'PRESENCIAL',
+      precio: 250.00,
+      horario: 'Sab 14:00 - 18:30',
+      fechaInicio: '2026-11-07T14:00:00Z',
+      fechaFin: '2026-12-19T18:30:00Z',
+      aforoMaximo: 18,
+      aforoDisponible: 5,
+      enlaceClase: null,
+      direccionClase: 'Av. Universitaria 1234, Lima',
+      aula: 'Laboratorio de Redes Cisco 105',
+      docente: 'Ing. Carlos Mendoza',
+      imagen: 'assets/images/all-img/c5.png'
+    },
+    {
+      id: 'b0000000-0000-0000-0000-000000000012',
+      titulo: 'Desarrollo Backend con Node.js, Express y NestJS',
+      descripcion: 'Construcción de APIs escalables con TypeScript, arquitectura limpia en NestJS, WebSockets en tiempo real y autenticación con JWT.',
+      modalidad: 'VIRTUAL',
+      precio: 170.00,
+      horario: 'Lun y Mie 19:00 - 21:30',
+      fechaInicio: '2026-11-09T19:00:00Z',
+      fechaFin: '2026-12-21T21:30:00Z',
+      aforoMaximo: 30,
+      aforoDisponible: 21,
+      enlaceClase: 'https://meet.google.com/node-nestjs-pro',
+      direccionClase: null,
+      aula: null,
+      docente: 'Ing. Roberto Docente',
+      imagen: 'assets/images/all-img/c6.png'
     }
   ]
 };

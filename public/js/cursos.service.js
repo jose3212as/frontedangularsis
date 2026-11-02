@@ -1,135 +1,155 @@
 /**
- * CURSOS.SERVICE.JS - Catálogo de Cursos, Filtros y Aforo en Tiempo Real
- * Sincronizado con PostgreSQL (cursos_db) a través del API Gateway
+ * CURSOS.SERVICE.JS - Servicio de Catálogo, Modalidades y Control de Aforo en Tiempo Real
  */
 const CursosService = {
-  // Inicialización de la persistencia local de cursos como fallback
-  initStorage() {
-    try {
-      const raw = localStorage.getItem('app_cursos_cache');
-      const list = raw ? JSON.parse(raw) : [];
-      // Si no existe caché o contenía cursos obsoletos distintos al catálogo oficial, sincronizar con CONFIG
-      if (!raw || !Array.isArray(list) || list.length !== (CONFIG.INITIAL_COURSES || []).length) {
-        localStorage.setItem('app_cursos_cache', JSON.stringify(CONFIG.INITIAL_COURSES));
-      }
-    } catch (_) {
-      localStorage.setItem('app_cursos_cache', JSON.stringify(CONFIG.INITIAL_COURSES));
-    }
-  },
+  _memCache: null,
 
   /**
-   * Enriquece los datos del curso provenientes de PostgreSQL
-   * asignando imágenes de la Gestión de Cursos y nombre del docente
+   * Devuelve instantáneamente (0ms) la lista de cursos en caché o semilla inicial
+   * para renderizar la interfaz sin esperar a la red (Stale-While-Revalidate).
    */
-  enrichCurso(curso, index = 0) {
-    if (!curso) return null;
-    const imgNumber = (index % 3) + 1;
-    return {
-      ...curso,
-      id: curso.id,
-      titulo: curso.titulo,
-      descripcion: curso.descripcion || 'Curso de especialización profesional con certificación oficial.',
-      modalidad: curso.modalidad || 'VIRTUAL',
-      precio: Number(curso.precio || 0),
-      horario: curso.horario || 'Horario flexible',
-      fechaInicio: curso.fechaInicio,
-      fechaFin: curso.fechaFin,
-      aforoMaximo: Number(curso.aforoMaximo || 30),
-      aforoDisponible: Number(curso.aforoDisponible !== undefined ? curso.aforoDisponible : 30),
-      enlaceClase: curso.enlaceClase,
-      direccionClase: curso.direccionClase,
-      aula: curso.aula,
-      imagen: curso.imagen || `assets/images/all-img/c${imgNumber}.png`,
-      docente: curso.docente || (curso.modalidad === 'VIRTUAL' ? 'Ing. Roberto Docente' : 'Ing. Carlos Mendoza')
-    };
+  getCachedCursos(modalidad = 'TODOS') {
+    let cursos = this._memCache;
+    if (!cursos || cursos.length === 0) {
+      try {
+        const raw = localStorage.getItem('app_cursos_cache');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            cursos = this._normalizeCursos(parsed);
+            this._memCache = cursos;
+          }
+        }
+      } catch (_) {}
+    }
+    if (!cursos || cursos.length === 0) {
+      cursos = [...CONFIG.INITIAL_COURSES];
+    }
+    return this.filterByModalidad(cursos, modalidad);
   },
 
   /**
-   * Obtiene la lista de cursos disponibles con su aforo actualizado desde la Base de Datos
+   * Obtiene todos los cursos públicos desde cursos-service (vía API Gateway)
+   * Si el backend no está activo, utiliza los cursos locales sincronizados.
    */
   async getCursos(modalidad = 'TODOS') {
-    this.initStorage();
+    let cursos = [];
     try {
-      console.log('[CursosService] Consultando catálogo de cursos en la base de datos...');
-      let remote;
-      try {
-        remote = await API.request('/cursos');
-      } catch (err) {
-        console.warn('[CursosService] Falló vía Gateway 8080, intentando directo a cursos-service 8082...', err.message);
-        remote = await API.request(CONFIG.CURSOS_SERVICE_URL);
+      const data = await API.request('/cursos');
+      if (Array.isArray(data) && data.length > 0) {
+        cursos = this._normalizeCursos(data);
+        this._memCache = cursos;
+        localStorage.setItem('app_cursos_cache', JSON.stringify(cursos));
+      } else {
+        cursos = this.getCachedCursos('TODOS');
       }
-      if (Array.isArray(remote) && remote.length > 0) {
-        console.log(`[CursosService] ¡Éxito! Se obtuvieron ${remote.length} cursos desde PostgreSQL.`);
-        remote.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
-        const enriched = remote.map((c, i) => this.enrichCurso(c, i));
-        localStorage.setItem('app_cursos_cache', JSON.stringify(enriched));
-        return this.filterByModalidad(enriched, modalidad);
-      }
-    } catch (err) {
-      console.warn('[CursosService] Error consultando backend, usando caché local:', err.message);
+    } catch (error) {
+      console.warn('[CursosService] Usando catálogo en caché local:', error.message);
+      cursos = this.getCachedCursos('TODOS');
     }
 
-    const cached = JSON.parse(localStorage.getItem('app_cursos_cache') || '[]');
-    const enrichedCached = cached.map((c, i) => this.enrichCurso(c, i));
-    return this.filterByModalidad(enrichedCached, modalidad);
+    return this.filterByModalidad(cursos, modalidad);
   },
 
   /**
-   * Obtiene un curso específico por su UUID desde el backend o caché
+   * Obtiene el detalle de un curso específico por su UUID
    */
   async getCursoById(id) {
-    this.initStorage();
     try {
-      let remote;
-      try {
-        remote = await API.request(`/cursos/${id}`);
-      } catch (err) {
-        remote = await API.request(`${CONFIG.CURSOS_SERVICE_URL}/${id}`);
+      const data = await API.request(`/cursos/${id}`);
+      if (data && data.id) {
+        return this._normalizeSingleCurso(data, 0);
       }
-      if (remote && remote.id) {
-        return this.enrichCurso(remote);
-      }
-    } catch (_) {
-      // Fallback
+    } catch (error) {
+      console.warn(`[CursosService] Buscando curso ${id} en caché local.`);
     }
 
-    const cached = JSON.parse(localStorage.getItem('app_cursos_cache') || '[]');
-    let found = cached.find(c => c.id === id);
-    if (!found && typeof CONFIG !== 'undefined' && CONFIG.INITIAL_COURSES) {
-      found = CONFIG.INITIAL_COURSES.find(c => c.id === id);
-    }
-    return found ? this.enrichCurso(found) : null;
+    const cached = this.getCachedCursos('TODOS');
+    return cached.find(c => c.id === id) || CONFIG.INITIAL_COURSES.find(c => c.id === id) || CONFIG.INITIAL_COURSES[0];
   },
 
   /**
-   * Filtra según modalidad VIRTUAL o PRESENCIAL
+   * Filtra una lista de cursos por modalidad ('TODOS', 'VIRTUAL', 'PRESENCIAL')
    */
-  filterByModalidad(list, modalidad) {
-    if (!modalidad || modalidad === 'TODOS') return list;
-    return list.filter(c => c.modalidad && c.modalidad.toUpperCase() === modalidad.toUpperCase());
+  filterByModalidad(cursos, modalidad) {
+    if (!modalidad || modalidad === 'TODOS') return cursos;
+    return cursos.filter(c => c.modalidad && c.modalidad.toUpperCase() === modalidad.toUpperCase());
   },
 
   /**
-   * Descuenta una vacante en tiempo real (evita sobreventa)
+   * Descuenta 1 vacante del curso en el backend y/o caché local
    */
-  async descontarVacante(cursoId) {
-    this.initStorage();
-    // Intentar descontar en el backend (PostgreSQL)
+  async descontarAforo(cursoId) {
+    this._memCache = null;
+    if (typeof API !== 'undefined' && API.clearCache) API.clearCache();
     try {
-      await API.request(`/cursos/${cursoId}/descontar-aforo`, { method: 'PUT' });
-      console.log(`[CursosService] Vacante descontada en la base de datos para el curso ${cursoId}`);
-    } catch (e) {
-      console.warn('[CursosService] No se pudo descontar aforo en BD vía API:', e.message);
+      return await API.request(`/cursos/${cursoId}/descontar-aforo`, { method: 'PUT' });
+    } catch (err) {
+      const cached = JSON.parse(localStorage.getItem('app_cursos_cache') || 'null') || [...CONFIG.INITIAL_COURSES];
+      const idx = cached.findIndex(c => c.id === cursoId);
+      if (idx !== -1 && cached[idx].aforoDisponible > 0) {
+        cached[idx].aforoDisponible -= 1;
+        localStorage.setItem('app_cursos_cache', JSON.stringify(cached));
+      }
+      return cached[idx];
     }
+  },
 
-    // Actualizar también en el almacenamiento local reactivo
-    const cached = JSON.parse(localStorage.getItem('app_cursos_cache') || '[]');
-    const curso = cached.find(c => c.id === cursoId);
-    if (curso && curso.aforoDisponible > 0) {
-      curso.aforoDisponible -= 1;
-      localStorage.setItem('app_cursos_cache', JSON.stringify(cached));
-      return curso.aforoDisponible;
+  /**
+   * Libera 1 vacante del curso cuando una reserva expira o se cancela
+   */
+  async liberarAforo(cursoId) {
+    this._memCache = null;
+    if (typeof API !== 'undefined' && API.clearCache) API.clearCache();
+    try {
+      return await API.request(`/cursos/${cursoId}/liberar-aforo`, { method: 'PUT' });
+    } catch (err) {
+      const cached = JSON.parse(localStorage.getItem('app_cursos_cache') || 'null') || [...CONFIG.INITIAL_COURSES];
+      const idx = cached.findIndex(c => c.id === cursoId);
+      if (idx !== -1 && cached[idx].aforoDisponible < cached[idx].aforoMaximo) {
+        cached[idx].aforoDisponible += 1;
+        localStorage.setItem('app_cursos_cache', JSON.stringify(cached));
+      }
+      return cached[idx];
     }
-    return 0;
+  },
+
+  /**
+   * Normaliza los datos provenientes de la entidad JPA Curso.java
+   */
+  _normalizeCursos(list) {
+    return list.map((item, index) => this._normalizeSingleCurso(item, index));
+  },
+
+  _normalizeSingleCurso(item, index = 0) {
+    const images = [
+      'assets/images/all-img/c1.png',
+      'assets/images/all-img/c2.png',
+      'assets/images/all-img/c3.png',
+      'assets/images/all-img/c4.png',
+      'assets/images/all-img/c5.png',
+      'assets/images/all-img/c6.png'
+    ];
+    const seedMatch = CONFIG.INITIAL_COURSES.find(c => c.id === item.id || c.titulo === item.titulo);
+
+    return {
+      id: item.id,
+      titulo: item.titulo || 'Curso Especializado',
+      descripcion: item.descripcion || 'Formación práctica con certificación oficial.',
+      modalidad: item.modalidad || 'VIRTUAL',
+      precio: Number(item.precio || 150.00),
+      horario: item.horario || 'Horario flexible',
+      fechaInicio: item.fechaInicio,
+      fechaFin: item.fechaFin,
+      aforoMaximo: item.aforoMaximo !== undefined ? item.aforoMaximo : 30,
+      aforoDisponible: item.aforoDisponible !== undefined ? item.aforoDisponible : 15,
+      enlaceClase: item.enlaceClase || (seedMatch ? seedMatch.enlaceClase : 'https://meet.google.com/abc-defg-hij'),
+      direccionClase: item.direccionClase || (seedMatch ? seedMatch.direccionClase : 'Av. Universitaria 1234, Lima'),
+      aula: item.aula || (seedMatch ? seedMatch.aula : 'Laboratorio 204'),
+      estado: item.estado || 'PUBLICADO',
+      docenteId: item.docenteId,
+      docente: item.docente || (seedMatch ? seedMatch.docente : 'Docente Especialista'),
+      imagen: item.imagen || (seedMatch ? seedMatch.imagen : images[index % images.length])
+    };
   }
 };

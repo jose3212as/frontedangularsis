@@ -1,73 +1,38 @@
-﻿(function() {
+(function() {
 /**
-
  * portal-docente.js - Lógica del Portal Especializado del Docente
-
  * Gestión de cursos asignados, actualización de enlaces en vivo / sedes,
-
- * y consulta de participantes por curso.
-
+ * y consulta optimizada de participantes por curso.
  */
 
-
-
 let misCursosDocente = [];
-
 let activeDocente = null;
 
-
-
 async function initPortalDocente() {
-
 	activeDocente = AuthService.getCurrentUser();
 
-
-
 	// Validación de seguridad por rol
-
 	if (!activeDocente) {
-
 		Notifications.showToast('Por favor inicia sesión con tu cuenta de docente.', 'info');
-
 		setTimeout(() => {
-
 			window.location.href = 'login.html?redirect=portal-docente.html';
-
 		}, 500);
-
 		return;
-
 	}
-
-
 
 	if (activeDocente.rol !== 'DOCENTE' && activeDocente.rol !== 'ADMIN') {
-
 		Notifications.showToast('Acceso restringido: Esta sección es exclusiva para docentes.', 'warning');
-
 		setTimeout(() => {
-
 			window.location.href = 'mis-cursos.html';
-
 		}, 800);
-
 		return;
-
 	}
 
-
-
 	// Actualizar encabezado del perfil
-
 	const elNombre = document.getElementById('docente-nombre-header');
-
 	const elCorreo = document.getElementById('docente-correo-header');
-
 	if (elNombre) elNombre.textContent = activeDocente.nombres + (activeDocente.apellidos ? ' ' + activeDocente.apellidos : '');
-
 	if (elCorreo) elCorreo.textContent = activeDocente.correo;
-
-
 
 	AuthService.updateNavbar();
 
@@ -88,84 +53,48 @@ async function initPortalDocente() {
 	}
 
 	await cargarCursosDelDocente();
-
 }
 
-
-
 async function cargarCursosDelDocente() {
-
 	const container = document.getElementById('docente-cursos-container');
-
 	const selectParticipantes = document.getElementById('select-curso-participantes');
 
-
-
 	try {
-
 		// Consultar cursos por docente desde cursos-service
-
 		let cursos = [];
-
 		try {
-
 			cursos = await API.request(`/cursos/docente/${activeDocente.id}`);
-
 		} catch (e) {
-
 			console.warn('[PortalDocente] Falló búsqueda directa por docenteId, cargando catálogo general:', e);
-
 			const todos = await CursosService.getCursos('TODOS');
-
 			cursos = (todos || []).filter(c => c.docenteId === activeDocente.id || c.docenteId === 'a0000000-0000-0000-0000-000000000002');
-
 		}
-
-
 
 		if (!cursos || cursos.length === 0) {
-
 			const todos = await CursosService.getCursos('TODOS');
-
 			cursos = todos || [];
-
 		}
-
-
 
 		misCursosDocente = cursos;
 
-
-
 		// Actualizar contadores
-
 		const totalCursosEl = document.getElementById('docente-total-cursos');
-
 		const totalAlumnosEl = document.getElementById('docente-total-alumnos');
 
-
-
 		let totalInscritos = 0;
-
 		misCursosDocente.forEach(c => {
-
 			const max = Number(c.aforoMaximo || 30);
-
 			const disp = Number(c.aforoDisponible !== undefined ? c.aforoDisponible : max);
-
 			totalInscritos += Math.max(0, max - disp);
-
 		});
 
-
-
 		if (totalCursosEl) totalCursosEl.textContent = misCursosDocente.length;
-		const bDocCursos = document.getElementById('docente-tab-badge-cursos'); if (bDocCursos) bDocCursos.textContent = misCursosDocente.length;
+		const bDocCursos = document.getElementById('docente-tab-badge-cursos');
+		if (bDocCursos) bDocCursos.textContent = misCursosDocente.length;
 
 		if (totalAlumnosEl) totalAlumnosEl.textContent = totalInscritos;
-		const bDocAlumnos = document.getElementById('docente-tab-badge-alumnos'); if (bDocAlumnos) bDocAlumnos.textContent = totalInscritos;
-
-
+		const bDocAlumnos = document.getElementById('docente-tab-badge-alumnos');
+		if (bDocAlumnos) bDocAlumnos.textContent = totalInscritos;
 
 		// Llenar select de participantes con opción de nómina completa por defecto
 		if (selectParticipantes) {
@@ -181,87 +110,45 @@ async function cargarCursosDelDocente() {
 			cargarAlumnosDeCurso('TODOS');
 		}
 
-
-
 		renderCursosDocente(misCursosDocente);
-
 	} catch (err) {
-
 		console.error('[PortalDocente] Error al cargar cursos:', err);
-
 		if (container) {
-
 			container.innerHTML = `
-
 				<div class="col-12 text-center py-4">
-
 					<p class="text-danger">No se pudieron cargar los cursos del docente: ${err.message}</p>
-
 				</div>
-
 			`;
-
 		}
-
 	}
-
 }
 
-
-
 function renderCursosDocente(lista) {
-
 	const container = document.getElementById('docente-cursos-container');
-
 	if (!container) return;
 
-
-
 	if (!lista || lista.length === 0) {
-
 		container.innerHTML = `
-
 			<div class="col-12 text-center py-5">
-
 				<div style="max-width: 450px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; border: 1px solid #e2e8f0;">
-
 					<i class="fa fa-folder-open-o fa-3x text-muted mb-2"></i>
-
 					<h5 style="color: #0f172a; font-weight: 700;">No tienes cursos asignados</h5>
-
 					<p class="text-muted" style="font-size: 13.5px;">Comunícate con el administrador para vincular tus cursos de especialización.</p>
-
 				</div>
-
 			</div>
-
 		`;
-
 		return;
-
 	}
 
-
-
 	container.innerHTML = lista.map(c => {
-
 		const isVirtual = c.modalidad === 'VIRTUAL';
-
 		const max = Number(c.aforoMaximo || 30);
-
 		const disp = Number(c.aforoDisponible !== undefined ? c.aforoDisponible : max);
-
 		const inscritos = Math.max(0, max - disp);
 
-
-
 		const badgeMod = isVirtual
-
 			? `<span class="badge" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 11.5px; font-weight: 700;"><i class="fa fa-video-camera me-1"></i> Virtual en Vivo</span>`
-
 			: `<span class="badge" style="background: #fefce8; color: #a16207; border: 1px solid #fef08a; font-size: 11.5px; font-weight: 700;"><i class="fa fa-building me-1"></i> Presencial</span>`;
-
-
 
 		return `
 			<div class="col-lg-6 col-12 mb-4">
@@ -296,11 +183,11 @@ function renderCursosDocente(lista) {
 
 					<div class="d-flex flex-wrap gap-2 pt-3 border-top justify-content-between align-items-center">
 						${isVirtual ? `
-							<button type="button" class="btn btn-sm btn-outline-secondary fw-bold" onclick="abrirModalEnlace('${c.id}', '${(c.enlaceClase || '').replace(/'/g, "\'")}')">
+							<button type="button" class="btn btn-sm btn-outline-secondary fw-bold" onclick="abrirModalEnlace('${c.id}', '${(c.enlaceClase || '').replace(/'/g, "\\'")}')">
 								<i class="fa fa-pencil me-1"></i> Actualizar Enlace
 							</button>
 						` : `
-							<button type="button" class="btn btn-sm btn-outline-secondary fw-bold" onclick="abrirModalAula('${c.id}', '${(c.direccionClase || '').replace(/'/g, "\'")}', '${(c.aula || '').replace(/'/g, "\'")}')">
+							<button type="button" class="btn btn-sm btn-outline-secondary fw-bold" onclick="abrirModalAula('${c.id}', '${(c.direccionClase || '').replace(/'/g, "\\'")}', '${(c.aula || '').replace(/'/g, "\\'")}')">
 								<i class="fa fa-pencil me-1"></i> Actualizar Sede/Aula
 							</button>
 						`}
@@ -312,10 +199,7 @@ function renderCursosDocente(lista) {
 			</div>
 		`;
 	}).join('');
-
 }
-
-
 
 function navToDocenteTab(tab) {
 	switchDocenteTab(tab, true);
@@ -398,8 +282,6 @@ function switchDocenteTab(tab, updateHash = true) {
 		}
 	}
 }
-
-
 
 let misAlumnosCargados = [];
 
@@ -549,21 +431,35 @@ async function cargarAlumnosDeCurso(cursoId) {
 				misCursosDocente = (todos || []).filter(c => c.docenteId === activeDocente.id || c.docenteId === 'a0000000-0000-0000-0000-000000000002');
 			}
 
-			const promesas = (misCursosDocente || []).map(async c => {
-				try {
-					const lista = await API.request(`/pedidos/curso/${c.id}/participantes`);
-					(lista || []).forEach(p => {
+			const cursosMap = new Map((misCursosDocente || []).map(c => [c.id, c]));
+
+			try {
+				// 1 sola petición en lote en vez de N peticiones separadas por curso
+				const todosPedidos = await API.request('/pedidos');
+				pedidos = (todosPedidos || []).filter(p => p.estado === 'PAGADO' && (cursosMap.size === 0 || cursosMap.has(p.cursoId)));
+				pedidos.forEach(p => {
+					const c = cursosMap.get(p.cursoId);
+					if (c) {
 						if (!p.cursoTitulo) p.cursoTitulo = c.titulo;
 						if (!p.modalidad) p.modalidad = c.modalidad;
-					});
-					return lista || [];
-				} catch (e) {
-					return [];
-				}
-			});
-
-			const arrays = await Promise.all(promesas);
-			pedidos = arrays.flat();
+					}
+				});
+			} catch (_) {
+				const promesas = (misCursosDocente || []).map(async c => {
+					try {
+						const lista = await API.request(`/pedidos/curso/${c.id}/participantes`);
+						(lista || []).forEach(p => {
+							if (!p.cursoTitulo) p.cursoTitulo = c.titulo;
+							if (!p.modalidad) p.modalidad = c.modalidad;
+						});
+						return lista || [];
+					} catch (e) {
+						return [];
+					}
+				});
+				const arrays = await Promise.all(promesas);
+				pedidos = arrays.flat();
+			}
 		} else {
 			pedidos = await API.request(`/pedidos/curso/${cursoId}/participantes`);
 			const curso = (misCursosDocente || []).find(c => c.id === cursoId);
@@ -603,217 +499,117 @@ async function cargarAlumnosDeCurso(cursoId) {
 }
 
 // Modales para Docente
-
 function abrirModalEnlace(cursoId, enlaceActual) {
-
 	const modal = document.getElementById('modal-actualizar-enlace');
-
 	const inputId = document.getElementById('edit-enlace-curso-id');
-
 	const inputUrl = document.getElementById('edit-enlace-input');
-
 	if (inputId) inputId.value = cursoId;
-
 	if (inputUrl) inputUrl.value = enlaceActual || '';
-
 	if (modal) modal.style.display = 'flex';
-
 }
-
-
 
 function cerrarModalEnlace() {
-
 	const modal = document.getElementById('modal-actualizar-enlace');
-
 	if (modal) modal.style.display = 'none';
-
 }
-
-
 
 async function guardarEnlaceClase() {
-
 	const inputId = document.getElementById('edit-enlace-curso-id');
-
 	const inputUrl = document.getElementById('edit-enlace-input');
-
 	const btn = document.getElementById('btn-guardar-enlace');
 
-
-
 	const cursoId = inputId ? inputId.value : null;
-
 	const enlace = inputUrl ? inputUrl.value.trim() : '';
 
-
-
 	if (!cursoId || !enlace) {
-
 		Notifications.showToast('Ingresa un enlace válido de clase (Zoom / Meet).', 'warning');
-
 		return;
-
 	}
-
-
 
 	if (btn) {
-
 		btn.disabled = true;
-
 		btn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Guardando...`;
-
 	}
-
-
 
 	try {
-
 		await API.request(`/cursos/${cursoId}/enlace`, {
-
 			method: 'PUT',
-
 			body: JSON.stringify({ enlaceClase: enlace })
-
 		});
 
-
-
+		if (typeof CursosService !== 'undefined') CursosService._memCache = null;
 		Notifications.showToast('¡Enlace de clase actualizado exitosamente!', 'success');
-
 		cerrarModalEnlace();
-
 		await cargarCursosDelDocente();
-
 	} catch (err) {
-
 		Notifications.showToast('Error al actualizar enlace: ' + err.message, 'error');
-
 	} finally {
-
 		if (btn) {
-
 			btn.disabled = false;
-
 			btn.innerHTML = `<i class="fa fa-save me-1"></i> Guardar Enlace`;
-
 		}
-
 	}
-
 }
-
-
 
 function abrirModalAula(cursoId, sedeActual, aulaActual) {
-
 	const modal = document.getElementById('modal-actualizar-aula');
-
 	const inputId = document.getElementById('edit-aula-curso-id');
-
 	const inputSede = document.getElementById('edit-sede-input');
-
 	const inputAula = document.getElementById('edit-aula-input');
-
-
 
 	if (inputId) inputId.value = cursoId;
-
 	if (inputSede) inputSede.value = sedeActual || '';
-
 	if (inputAula) inputAula.value = aulaActual || '';
-
 	if (modal) modal.style.display = 'flex';
-
 }
-
-
 
 function cerrarModalAula() {
-
 	const modal = document.getElementById('modal-actualizar-aula');
-
 	if (modal) modal.style.display = 'none';
-
 }
 
-
-
 async function guardarAulaSede() {
-
 	const inputId = document.getElementById('edit-aula-curso-id');
-
 	const inputSede = document.getElementById('edit-sede-input');
-
 	const inputAula = document.getElementById('edit-aula-input');
-
 	const btn = document.getElementById('btn-guardar-aula');
 
-
-
 	const cursoId = inputId ? inputId.value : null;
-
 	const sede = inputSede ? inputSede.value.trim() : '';
-
 	const aula = inputAula ? inputAula.value.trim() : '';
 
-
-
 	if (!cursoId || !sede || !aula) {
-
 		Notifications.showToast('Por favor completa tanto la sede como el aula.', 'warning');
-
 		return;
-
 	}
-
-
 
 	if (btn) {
-
 		btn.disabled = true;
-
 		btn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Guardando...`;
-
 	}
-
-
 
 	try {
-
 		await API.request(`/cursos/${cursoId}/datos-clase`, {
-
 			method: 'PUT',
-
-			body: JSON.stringify({ direccionClase: sede, aula: aula })
-
+			body: JSON.stringify({
+				modalidad: 'PRESENCIAL',
+				direccionClase: sede,
+				aula: aula
+			})
 		});
 
-
-
+		if (typeof CursosService !== 'undefined') CursosService._memCache = null;
 		Notifications.showToast('¡Datos de sede y aula actualizados exitosamente!', 'success');
-
 		cerrarModalAula();
-
 		await cargarCursosDelDocente();
-
 	} catch (err) {
-
 		Notifications.showToast('Error al actualizar datos: ' + err.message, 'error');
-
 	} finally {
-
 		if (btn) {
-
 			btn.disabled = false;
-
 			btn.innerHTML = `<i class="fa fa-save me-1"></i> Guardar Cambios`;
-
 		}
-
 	}
-
 }
 
 window.initPortalDocente = initPortalDocente;

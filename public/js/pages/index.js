@@ -1,14 +1,17 @@
-﻿(function() {
+(function() {
 /**
  * index.js - Lógica de la Página Principal y Catálogo Unificado
- * Gestión del catálogo completo, buscador en tiempo real, filtrado por modalidad
- * y reserva de vacantes con control de usuario.
+ * Renderizado instantáneo (Stale-While-Revalidate) y carga en paralelo desde PostgreSQL.
  */
 
-let allCursos = (typeof CONFIG !== 'undefined' && CONFIG.INITIAL_COURSES) ? [...CONFIG.INITIAL_COURSES] : [];
+let allCursos = (typeof CursosService !== 'undefined' && CursosService.getCachedCursos)
+	? CursosService.getCachedCursos('TODOS')
+	: ((typeof CONFIG !== 'undefined' && CONFIG.INITIAL_COURSES) ? [...CONFIG.INITIAL_COURSES] : []);
 let currentModalidadHome = 'TODOS';
 let searchKeywordHome = '';
-let paidCourseIdsHome = new Set();
+let paidCourseIdsHome = (typeof PedidosService !== 'undefined' && PedidosService.getCachedPaidCourseIds)
+	? PedidosService.getCachedPaidCourseIds()
+	: new Set();
 
 async function initHome() {
 	actualizarEstadoNavbar();
@@ -26,28 +29,41 @@ async function initHome() {
 		if (sInput) sInput.value = urlQ;
 	}
 
-	await cargarCursosPagadosAlumnoHome();
+	// 1. Renderizar de inmediato (0ms) con caché en memoria / localStorage
+	allCursos = CursosService.getCachedCursos('TODOS');
+	paidCourseIdsHome = PedidosService.getCachedPaidCourseIds();
+	applyFilterHome();
 
-	try {
-		const remote = await CursosService.getCursos('TODOS');
-		if (remote && remote.length > 0) {
-			allCursos = remote;
-		}
-	} catch (e) {
-		console.warn('Usando cursos iniciales precargados:', e);
-	}
+	// 2. Consultar en paralelo cursos y matrículas desde PostgreSQL
+	await Promise.allSettled([
+		cargarCursosPagadosAlumnoHome(),
+		(async () => {
+			try {
+				const remote = await CursosService.getCursos('TODOS');
+				if (remote && remote.length > 0) {
+					allCursos = remote;
+				}
+			} catch (e) {
+				console.warn('Usando cursos iniciales precargados:', e);
+			}
+		})()
+	]);
 
+	// 3. Actualizar interfaz con los datos frescos de la BD
 	applyFilterHome();
 	actualizarEstadoNavbar();
 }
 
 async function cargarCursosPagadosAlumnoHome() {
-	paidCourseIdsHome.clear();
 	const user = AuthService.getCurrentUser();
-	if (!user) return;
+	if (!user) {
+		paidCourseIdsHome.clear();
+		return;
+	}
 
 	try {
 		const misMatriculas = await PedidosService.getMisMatriculas(user.id);
+		paidCourseIdsHome.clear();
 		(misMatriculas || []).forEach(m => {
 			if (m.estado === 'PAGADO') {
 				const cid = (m.curso && m.curso.id) ? m.curso.id : (m.cursoId || m.id);
@@ -132,7 +148,7 @@ function renderCursos(list) {
 			seatsText = `<i class="fa fa-exclamation-circle"></i> <strong>¡Últimas ${libres} Vacantes!</strong>`;
 		}
 
-		const imgUrl = c.imagen || `assets/images/all-img/c${(i % 3) + 1}.png`;
+		const imgUrl = c.imagen || `assets/images/all-img/c${(i % 6) + 1}.png`;
 		const docenteNombre = c.docente || (isVirtual ? 'Ing. Roberto Docente' : 'Ing. Carlos Mendoza');
 
 		const isPaid = paidCourseIdsHome.has(c.id);

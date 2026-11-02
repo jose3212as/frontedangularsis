@@ -1,17 +1,20 @@
-﻿(function() {
+(function() {
 /**
  * cursos.js - Lógica del Catálogo Completo de Cursos
- * Manejo de búsquedas en tiempo real, filtros combinados por modalidad,
- * rango de precios, disponibilidad de vacantes y ordenamiento multicriterio.
+ * Renderizado instantáneo (0ms) y sincronización en paralelo con PostgreSQL.
  */
 
-let allCursos = (typeof CONFIG !== 'undefined' && CONFIG.INITIAL_COURSES) ? [...CONFIG.INITIAL_COURSES] : [];
+let allCursos = (typeof CursosService !== 'undefined' && CursosService.getCachedCursos)
+	? CursosService.getCachedCursos('TODOS')
+	: ((typeof CONFIG !== 'undefined' && CONFIG.INITIAL_COURSES) ? [...CONFIG.INITIAL_COURSES] : []);
 let currentModalidad = 'TODOS';
 let searchKeyword = '';
 let currentRangoPrecio = 'TODOS';
 let currentOrden = 'DESTACADOS';
 let onlyVacantes = false;
-let paidCourseIds = new Set();
+let paidCourseIds = (typeof PedidosService !== 'undefined' && PedidosService.getCachedPaidCourseIds)
+	? PedidosService.getCachedPaidCourseIds()
+	: new Set();
 
 async function initCursosPage() {
 	actualizarEstadoNavbar();
@@ -21,6 +24,8 @@ async function initCursosPage() {
 	const urlMod = (params.get('modalidad') || '').toUpperCase();
 	if (['VIRTUAL', 'PRESENCIAL', 'TODOS'].includes(urlMod)) {
 		currentModalidad = urlMod;
+	} else {
+		currentModalidad = 'TODOS';
 	}
 
 	const urlQ = params.get('q') || '';
@@ -32,30 +37,41 @@ async function initCursosPage() {
 
 	actualizarBotonesModalidad();
 
-	// 2. Si el alumno está autenticado, cargar sus cursos pagados para identificarlos en el catálogo
-	await cargarCursosPagadosAlumno();
+	// 2. Renderizar inmediatamente (0ms) con el catálogo en caché antes de esperar red
+	allCursos = CursosService.getCachedCursos('TODOS');
+	paidCourseIds = PedidosService.getCachedPaidCourseIds();
+	applyFilter();
 
-	// 3. Cargar catálogo desde la base de datos (PostgreSQL vía API Gateway)
-	try {
-		const remote = await CursosService.getCursos('TODOS');
-		if (remote && remote.length > 0) {
-			allCursos = remote;
-		}
-	} catch (e) {
-		console.warn('[initCursosPage] Usando cursos locales precargados:', e);
-	}
+	// 3. Cargar en paralelo cursos y matrículas del alumno desde PostgreSQL
+	await Promise.allSettled([
+		cargarCursosPagadosAlumno(),
+		(async () => {
+			try {
+				const remote = await CursosService.getCursos('TODOS');
+				if (remote && remote.length > 0) {
+					allCursos = remote;
+				}
+			} catch (e) {
+				console.warn('[initCursosPage] Usando cursos locales precargados:', e);
+			}
+		})()
+	]);
 
+	// 4. Actualizar vista con datos frescos de PostgreSQL
 	applyFilter();
 	actualizarEstadoNavbar();
 }
 
 async function cargarCursosPagadosAlumno() {
-	paidCourseIds.clear();
 	const user = AuthService.getCurrentUser();
-	if (!user) return;
+	if (!user) {
+		paidCourseIds.clear();
+		return;
+	}
 
 	try {
 		const misMatriculas = await PedidosService.getMisMatriculas(user.id);
+		paidCourseIds.clear();
 		(misMatriculas || []).forEach(m => {
 			if (m.estado === 'PAGADO') {
 				const cid = (m.curso && m.curso.id) ? m.curso.id : (m.cursoId || m.id);
@@ -253,7 +269,7 @@ function renderCursos(list) {
 			seatsText = `<i class="fa fa-exclamation-circle"></i> <strong>¡Últimas ${libres} Vacantes!</strong>`;
 		}
 
-		const imgUrl = c.imagen || `assets/images/all-img/c${(i % 3) + 1}.png`;
+		const imgUrl = c.imagen || `assets/images/all-img/c${(i % 6) + 1}.png`;
 		const docenteNombre = c.docente || (isVirtual ? 'Ing. Roberto Docente' : 'Ing. Carlos Mendoza');
 
 		const isPaid = paidCourseIds.has(c.id);

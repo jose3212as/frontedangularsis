@@ -1,4 +1,4 @@
-﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { APP_CONFIG, CursoModel } from '../../services/config.data';
@@ -369,7 +369,7 @@ export class HomeComponent implements AfterViewInit {
       c = cached.find(item => item.id === cursoId);
     }
     if (!c) {
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/carrito');
       return;
     }
 
@@ -380,9 +380,7 @@ export class HomeComponent implements AfterViewInit {
 
     this.notifications.showToast(res.message || '¡Curso agregado a tu carrito!', 'success');
     setTimeout(() => {
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/carrito');
     }, 500);
   }
 }
-
-

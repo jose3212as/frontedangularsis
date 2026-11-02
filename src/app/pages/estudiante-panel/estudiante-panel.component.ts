@@ -1,4 +1,4 @@
-﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { APP_CONFIG } from '../../services/config.data';
@@ -80,12 +80,12 @@ export class EstudiantePanelComponent implements AfterViewInit {
     const userCheck = this.authService.getCurrentUser();
     if (userCheck && userCheck.rol === 'ADMIN') {
       this.notifications.showToast('Redirigiendo a tu Portal Administrador...', 'info');
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/portal-admin');
       return;
     }
     if (userCheck && userCheck.rol === 'DOCENTE') {
       this.notifications.showToast('Redirigiendo a tu Portal Docente...', 'info');
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/portal-docente');
       return;
     }
 
@@ -340,5 +340,3 @@ export class EstudiantePanelComponent implements AfterViewInit {
     container.innerHTML = headerHtml + cardsHtml;
   }
 }
-
-

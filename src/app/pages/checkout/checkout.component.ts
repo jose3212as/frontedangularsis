@@ -1,4 +1,4 @@
-﻿import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -478,7 +478,7 @@ export class CheckoutComponent implements AfterViewInit, OnDestroy {
       this.cartService.clearCart();
 
       setTimeout(() => {
-        this.router.navigateByUrl('/');
+        this.router.navigateByUrl('/confirmacion');
       }, 600);
     } catch (err: any) {
       this.notifications.showToast('Error al confirmar matrícula: ' + err?.message, 'error');
@@ -496,5 +496,3 @@ export class CheckoutComponent implements AfterViewInit, OnDestroy {
     }
   }
 }
-
-

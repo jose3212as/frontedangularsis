@@ -1,4 +1,4 @@
-﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -87,7 +87,7 @@ export class RegistroComponent implements AfterViewInit {
     const redirectUrl = new URLSearchParams(window.location.search).get('redirect');
     if (redirectUrl) {
       document.querySelectorAll('a[href="/login"], a[href^="/login?"]').forEach((link: any) => {
-        link.href = '/' + encodeURIComponent(redirectUrl);
+        link.href = '/login?redirect=' + encodeURIComponent(redirectUrl);
       });
     }
   }
@@ -145,7 +145,7 @@ export class RegistroComponent implements AfterViewInit {
 
     try {
       await this.authService.registro(data);
-      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/';
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || 'index.html';
       const isCheckout = redirectUrl.includes('checkout');
 
       if (btn) {
@@ -171,4 +171,3 @@ export class RegistroComponent implements AfterViewInit {
     }
   }
 }
-

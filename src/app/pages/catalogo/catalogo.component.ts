@@ -1,4 +1,4 @@
-﻿import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -455,7 +455,7 @@ export class CatalogoComponent implements AfterViewInit, OnDestroy {
       c = cached.find(item => item.id === cursoId);
     }
     if (!c) {
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/carrito');
       return;
     }
 
@@ -466,7 +466,7 @@ export class CatalogoComponent implements AfterViewInit, OnDestroy {
 
     this.notifications.showToast(res.message || '¡Curso agregado a tu carrito!', 'success');
     setTimeout(() => {
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/carrito');
     }, 500);
   }
 
@@ -474,5 +474,3 @@ export class CatalogoComponent implements AfterViewInit, OnDestroy {
     this.qSub?.unsubscribe();
   }
 }
-
-

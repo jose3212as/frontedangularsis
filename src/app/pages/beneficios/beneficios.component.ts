@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -393,4 +393,3 @@ export class BeneficiosComponent implements OnInit, AfterViewInit, OnDestroy {
     this.qSub?.unsubscribe();
   }
 }
-

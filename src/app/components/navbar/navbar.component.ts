@@ -1,4 +1,4 @@
-﻿import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
@@ -78,4 +78,3 @@ export class NavbarComponent implements AfterViewInit, OnDestroy {
     this.navSub?.unsubscribe();
   }
 }
-

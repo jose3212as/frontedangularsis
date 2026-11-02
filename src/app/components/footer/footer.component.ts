@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
@@ -186,7 +186,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   onLogout(): void {
-    this.authService.logout('/');
+    this.authService.logout('index.html');
   }
 
   private checkPortalRoute(url: string): void {
@@ -199,4 +199,3 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.navSub?.unsubscribe();
   }
 }
-

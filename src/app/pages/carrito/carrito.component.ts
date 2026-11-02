@@ -1,4 +1,4 @@
-﻿import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { APP_CONFIG } from '../../services/config.data';
@@ -224,9 +224,9 @@ export class CarritoComponent implements AfterViewInit, OnDestroy {
     }
 
     if (!this.authService.isAuthenticated()) {
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/login?redirect=checkout.html');
     } else {
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/checkout');
     }
   }
 
@@ -274,5 +274,3 @@ export class CarritoComponent implements AfterViewInit, OnDestroy {
     }
   }
 }
-
-

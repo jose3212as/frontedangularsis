@@ -1,4 +1,4 @@
-﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
@@ -371,4 +371,3 @@ export class ConfirmacionComponent implements AfterViewInit {
     }, 400);
   }
 }
-

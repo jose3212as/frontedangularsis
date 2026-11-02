@@ -1,4 +1,4 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { APP_CONFIG } from './config.data';
 
 export interface CartItem {
@@ -228,4 +228,3 @@ export class CartService {
     localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.RESERVATION_EXPIRY);
   }
 }
-

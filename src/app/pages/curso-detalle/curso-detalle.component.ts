@@ -1,4 +1,4 @@
-﻿import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, combineLatest } from 'rxjs';
@@ -296,7 +296,7 @@ export class CursoDetalleComponent implements AfterViewInit, OnDestroy {
         btnAction.style.background = '#16a34a';
         btnAction.innerHTML = `<i class="fa fa-graduation-cap me-1"></i> Ir a Mis Clases`;
         btnAction.onclick = () => {
-          this.router.navigateByUrl('/');
+          this.router.navigateByUrl('/mis-cursos');
         };
       } else if (libres <= 0) {
         seatsBox.innerHTML = `<span class="seats-live-badge soldout"><i class="fa fa-times-circle"></i> Aforo Completo (0 vacantes disponibles)</span>`;
@@ -320,7 +320,7 @@ export class CursoDetalleComponent implements AfterViewInit, OnDestroy {
           this.cartService.bumpBadge();
           this.notifications.showToast(res.message || '¡Curso agregado al carrito!', 'success');
           setTimeout(() => {
-            this.router.navigateByUrl('/');
+            this.router.navigateByUrl('/carrito');
           }, 300);
         };
       }
@@ -418,5 +418,3 @@ export class CursoDetalleComponent implements AfterViewInit, OnDestroy {
     this.sub?.unsubscribe();
   }
 }
-
-

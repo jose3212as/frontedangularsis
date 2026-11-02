@@ -1,4 +1,4 @@
-﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CursoModel } from '../../services/config.data';
@@ -324,7 +324,7 @@ export class AdminPanelComponent implements AfterViewInit {
     if (!user) {
       this.notifications.showToast('Por favor inicia sesión con tu cuenta de Administrador.', 'info');
       setTimeout(() => {
-        this.router.navigateByUrl('/');
+        this.router.navigateByUrl('/login?redirect=portal-admin.html');
       }, 400);
       return;
     }
@@ -718,4 +718,3 @@ export class AdminPanelComponent implements AfterViewInit {
     }
   }
 }
-

@@ -1,4 +1,4 @@
-﻿import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
+import { Component, AfterViewInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -125,7 +125,7 @@ export class LoginComponent implements AfterViewInit {
       this.notifications.showToast('Ingresa con tu usuario para completar tu inscripción.', 'info');
       const linkReg = document.querySelector('a[href="/registro"]') as HTMLAnchorElement | null;
       if (linkReg) {
-        linkReg.href = '/' + encodeURIComponent(redirectUrl);
+        linkReg.href = '/registro?redirect=' + encodeURIComponent(redirectUrl);
       }
     }
   }
@@ -261,4 +261,3 @@ export class LoginComponent implements AfterViewInit {
     await this.hacerLogin();
   }
 }
-

@@ -99,7 +99,7 @@ import { CartService } from '../../services/cart.service';
 					<h2>Proceso Automatizado</h2>
 					<p>¿Cómo garantizamos tu <span><u>vacante en tiempo real</u></span>?</p>
 				</div>
-				<div class="row">
+				<div class="row tp_promo_box">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="single_feature_one">
 							<div class="sf_top">
@@ -185,7 +185,7 @@ import { CartService } from '../../services/cart.service';
 					<h2>Pasarela Integrada</h2>
 					<p>¿Cómo funciona el <span><u>pago en línea</u></span>?</p>
 				</div>
-				<div class="row">
+				<div class="row tp_promo_box">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="single_feature_one">
 							<div class="sf_top">
@@ -271,7 +271,7 @@ import { CartService } from '../../services/cart.service';
 					<h2>Entrega Inmediata</h2>
 					<p>¿Qué recibes al <span><u>confirmar tu matrícula</u></span>?</p>
 				</div>
-				<div class="row">
+				<div class="row tp_promo_box">
 					<div class="col-lg-4 col-sm-6 col-xs-12">
 						<div class="single_feature_one">
 							<div class="sf_top">
@@ -305,8 +305,8 @@ import { CartService } from '../../services/cart.service';
 	}
 
 	<section class="tp_feature" style="padding-top: 30px;">
-	   <div class="container-fluid">			
-			<div class="row">					
+	   <div class="container">			
+			<div class="row tp_promo_box">					
 				<div class="col-lg-4 col-sm-4 col-xs-12 no-padding">
 					<div class="single_tp">
 						<h3>Cero Sobreventa de Vacantes</h3>

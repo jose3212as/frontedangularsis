@@ -54,8 +54,8 @@ import { NotificationService } from '../../services/notification.service';
 
 	<!-- START TOP PROMO FEATURES  -->
 	<section class="tp_feature">
-	   <div class="container-fluid">			
-			<div class="row">					
+	   <div class="container">			
+			<div class="row tp_promo_box">					
 				<div class="col-lg-4 col-sm-4 col-xs-12 no-padding wow fadeInUp" data-wow-duration="1s" data-wow-delay="0.2s">
 					<div class="single_tp">
 						<h3>Cero Sobreventa de Vacantes</h3>
